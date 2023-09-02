@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@trpc/client": "^10.0.0",
-    "solid-js": "^1.7.6"
+    "@types/ws": "^8.5.5",
+    "solid-js": "^1.7.6",
+    "ws": "^8.13.0"
   }
 }
