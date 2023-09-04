@@ -1,36 +1,58 @@
 import superjson from "superjson";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { IContext } from "./context";
 
-const t = initTRPC.context().create({
+const t = initTRPC.context<IContext>().create({
   transformer: superjson,
 });
 
 const router = t.router;
 const procedure = t.procedure;
 
-const isAuthed = t.middleware(async ({ ctx, next }) => {
-  if (!(ctx.ctx.socket && ctx.ctx.auth)) {
+const isAuthedAsAnonymous = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.ctx.auth?.socket) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (ctx.ctx.auth.type !== "anonymous") {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   return next({
     ctx: {
-      ctx: {
-        config: ctx.config,
-        setAuth: (
-          userId: UserId,
-          username: string,
-          email: string,
-          socketId: string
-        ) => ctx.ctx.setAuth(userId, username, email, socketId),
-        resetAuth: () => ctx.ctx.resetAuth(),
-        setSocket: (s: Socket | undefined) => ctx.ctx.setSocket(s),
-        socket: ctx.ctx.socket,
-        auth: ctx.ctx.auth,
-        session: ctx.ctx.session,
-        db: ctx.ctx.db,
-      },
-      opts: ctx.opts,
+      auth: ctx.ctx.auth,
+    },
+  });
+});
+
+const isAuthedAsStudent = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.ctx.auth?.socket) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (ctx.ctx.auth.type !== "student") {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      auth: ctx.ctx.auth,
+    },
+  });
+});
+
+const isAuthedAsVolunteer = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.ctx.auth?.socket) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (ctx.ctx.auth.type !== "volunteer") {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      auth: ctx.ctx.auth,
     },
   });
 });
