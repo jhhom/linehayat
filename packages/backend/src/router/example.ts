@@ -15,6 +15,10 @@ const ExampleRouter = router({
   example: publicProcedure.query(async ({ ctx }) => {
     return { info: 42 };
   }),
+
+  registerSocket: publicProcedure.subscription(({ ctx }) => {
+    
+  }) 
 });
 
 export default ExampleRouter;
