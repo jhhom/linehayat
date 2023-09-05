@@ -4,8 +4,9 @@ import { wsLink, createWSClient, createTRPCProxyClient } from "@trpc/client";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { fromPromise, ok, err } from "neverthrow";
 import { inferRouterError } from "@trpc/server";
-import type { IAppRouter } from "@backend/router2/router";
-import type { IApiClient } from "@api-contract/client";
+
+import type { IAppRouter } from "@backend/backend/router2/router";
+import { IApiClient } from "@api-contract/client";
 
 import { Unsubscribable } from "@trpc/server/observable";
 import { SubscriptionEventPayload } from "@api-contract/subscription";

@@ -2,9 +2,10 @@ import type { Observer } from "@trpc/server/observable";
 import type { NodeHTTPCreateContextFnOptions } from "@trpc/server/dist/adapters/node-http";
 import { inferAsyncReturnType } from "@trpc/server";
 import { IncomingMessage } from "http";
+
 import ws from "ws";
 
-import type { SubscriptionMessage } from "../../../api-contract/subscription";
+import type { SubscriptionMessage } from "@api-contract/subscription";
 
 export type Socket = Observer<SubscriptionMessage, unknown>;
 

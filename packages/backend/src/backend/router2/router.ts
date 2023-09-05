@@ -1,13 +1,13 @@
 import superjson from "superjson";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { IContext } from "./context";
+import { IContext, Socket } from "./context";
 import { Kysely } from "kysely";
-import { DB } from "../core/schema";
 
-import { contract } from "../../../api-contract/endpoints";
+import { DB } from "~/backend/core/schema";
 import { observable } from "@trpc/server/observable";
-import type { Socket } from "./context";
-import { SubscriptionMessage } from "../../../api-contract/subscription";
+
+import { SubscriptionMessage } from "@api-contract/subscription";
+import { contract } from "@api-contract/endpoints";
 
 const t = initTRPC.context<IContext>().create({
   transformer: superjson,

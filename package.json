@@ -6,7 +6,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^6.0.3"
+    "lerna": "^6.0.3",
+    "tsx": "^3.12.8"
   },
   "dependencies": {
     "@trpc/server": "^10.0.0",

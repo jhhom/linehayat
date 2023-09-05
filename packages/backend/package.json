@@ -1,10 +1,10 @@
 {
-  "name": "trpc",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --files src/main.ts",
+    "dev": "tsx watch src/backend/main.ts",
     "build": "tsc",
     "start": "node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1",

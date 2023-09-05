@@ -18,7 +18,7 @@
             "../backend/src/*"
         ],
         "@api-contract/*": [
-            "../api-contract/*"
+            "../shared/api-contract/*"
         ]
       },
   }
