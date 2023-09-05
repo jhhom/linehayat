@@ -15,7 +15,10 @@
           "./src/*"
         ],
         "@backend/*": [
-            "../backend/src/*",
+            "../backend/src/*"
+        ],
+        "@api-contract/*": [
+            "../api-contract/*"
         ]
       },
   }

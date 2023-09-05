@@ -19,9 +19,13 @@
     "vite-plugin-solid": "^2.7.0"
   },
   "dependencies": {
+    "@modular-forms/solid": "^0.19.2",
+    "@solidjs/router": "^0.8.3",
+    "@tanstack/solid-query": "5.0.0-alpha.20",
     "@trpc/client": "^10.0.0",
     "@types/ws": "^8.5.5",
     "solid-js": "^1.7.6",
-    "ws": "^8.13.0"
+    "ws": "^8.13.0",
+    "zod": "^3.19.1"
   }
 }

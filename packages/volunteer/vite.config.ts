@@ -22,6 +22,7 @@ export default defineConfig({
     alias: {
       "~": path.resolve(__dirname, "./src/"),
       "@backend": path.resolve(__dirname, "../backend/src"),
+      "@api-contract": path.resolve(__dirname, "../api-contract"),
     },
   },
 });

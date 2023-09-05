@@ -4,61 +4,39 @@ import { inferAsyncReturnType } from "@trpc/server";
 import { IncomingMessage } from "http";
 import ws from "ws";
 
-
+export type Socket = Observer<SubscriptionMessage, unknown>;
 
 type Session = {
-  auth: AuthAnonymous | AuthStudent | AuthVolunteer | null;
+  auth:
+    | {
+        type: "student";
+        studentId: string;
+        socket: Socket;
+      }
+    | {
+        type: "volunteer";
+        email: string;
+        socket: Socket;
+      }
+    | {
+        type: "anonymous";
+        socket: Socket;
+      }
+    | null;
 };
 
 type StudentEventPayload = {
   request_accepted: {};
 };
 
-type StudentSubscriptionMessage = {
-  [k in keyof StudentEventPayload]: {
+type SubscriptionMessage = {
+  [k in keyof SubscriptionEventPayload]: {
     event: k;
-    payload: StudentEventPayload[k];
+    payload: SubscriptionEventPayload[k];
   };
-}[keyof StudentEventPayload];
+}[keyof SubscriptionEventPayload];
 
-type VolunteerEventPayload = {
-  dashboard_update: {};
-};
-
-type VolunteerSubscriptionMessage = {
-  [k in keyof VolunteerEventPayload]: {
-    event: k;
-    payload: VolunteerEventPayload[k];
-  };
-}[keyof VolunteerEventPayload];
-
-// when registering socket, we set the ctx.session.auth = authAnonymous
-// with socket of any
-type AuthAnonymous = {
-  // socket
-  socket: Observer<any, unknown>;
-  type: "anonymous";
-};
-
-// after student request to chat, we set the ctx.session.auth = AuthStudent{
-//  socket: ctx.socket
-// }
-// on the front-end, Client will changes to StudentClient, and will drop all existing listeners and allow user to register listener to student message
-type AuthStudent = {
-  socket: Observer<StudentSubscriptionMessage, unknown>;
-  studentId: string;
-  type: "student";
-};
-
-// after volunteer login, we set the ctx.session.auth = AuthStudent{
-//  socket: ctx.socket
-// }
-// on the front-end, Client will changes to VolunteerClient, and will drop all existing listeners and allow user to register listener to student message
-type AuthVolunteer = {
-  socket: Observer<VolunteerSubscriptionMessage, unknown>;
-  email: string;
-  type: "volunteer";
-};
+type SubscriptionEventPayload = {};
 
 export class Context {
   readonly session: Session;
@@ -101,15 +79,3 @@ export type IContext = inferAsyncReturnType<
 >;
 
 export type IServiceContext = Context;
-
-export type IServiceStudentContext = {
-  auth: Extract<Session["auth"], { auth: AuthStudent }>;
-};
-
-export type IServiceVolunteerContext = {
-  auth: Extract<Session["auth"], { auth: AuthVolunteer }>;
-};
-
-export type IServiceAnonymousContext = {
-  auth: Extract<Session["auth"], { auth: AuthAnonymous }>;
-};

@@ -1,19 +1,25 @@
 import { onMount, type Component, createSignal } from "solid-js";
+import { Route, Routes, Router } from "@solidjs/router";
 import trpc from "./utils/trpc";
 
+import HomePage from "./pages/Home/Home.page";
+import ChatPage from "./pages/Chat.page";
+
 const App: Component = () => {
-  const [d, setD] = createSignal(0);
-
-  onMount(async () => {
-    const data = await trpc.example.query();
-    setD(data.info);
-  });
-
   return (
-    <p class="text-4xl text-green-700 text-center py-20">
-      Hello tailwind! Query result: {d()}
-    </p>
+    <Routes>
+      <Route path="/" component={HomePage}></Route>
+      <Route path="/chat" component={ChatPage}></Route>
+    </Routes>
   );
 };
 
-export default App;
+const AppWithRouter = () => {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+};
+
+export default AppWithRouter;

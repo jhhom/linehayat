@@ -5,6 +5,9 @@ importers:
   .:
     specifiers:
       lerna: ^6.0.3
+      zod: ^3.19.1
+    dependencies:
+      zod: 3.19.1
     devDependencies:
       lerna: 6.0.3
 
@@ -20,6 +23,8 @@ importers:
       dotenv: ^16.0.3
       express: ^4.18.2
       kysely: ^0.26.3
+      kysely-codegen: ^0.10.1
+      neverthrow: ^6.0.0
       nodemon: ^2.0.20
       pg: ^8.11.3
       superjson: ^1.13.1
@@ -38,11 +43,13 @@ importers:
       dotenv: 16.0.3
       express: 4.18.2
       kysely: 0.26.3
+      neverthrow: 6.0.0
       pg: 8.11.3
       superjson: 1.13.1
       ws: 8.13.0
       zod: 3.19.1
     devDependencies:
+      kysely-codegen: 0.10.1_kysely@0.26.3+pg@8.11.3
       nodemon: 2.0.20
       ts-node: 10.9.1_wup25etrarvlqkprac7h35hj7u
       typescript: 4.9.3
@@ -82,33 +89,6 @@ importers:
       typescript: 4.9.3
       vite: 3.2.4
 
-  packages/solid:
-    specifiers:
-      '@trpc/client': ^10.0.0
-      '@types/ws': ^8.5.5
-      autoprefixer: ^10.4.14
-      postcss: ^8.4.24
-      solid-devtools: ^0.27.3
-      solid-js: ^1.7.6
-      tailwindcss: ^3.3.2
-      typescript: ^5.1.3
-      vite: ^4.3.9
-      vite-plugin-solid: ^2.7.0
-      ws: ^8.13.0
-    dependencies:
-      '@trpc/client': 10.0.0
-      '@types/ws': 8.5.5
-      solid-js: 1.7.11
-      ws: 8.13.0
-    devDependencies:
-      autoprefixer: 10.4.15_postcss@8.4.29
-      postcss: 8.4.29
-      solid-devtools: 0.27.7_solid-js@1.7.11+vite@4.4.9
-      tailwindcss: 3.3.3
-      typescript: 5.2.2
-      vite: 4.4.9
-      vite-plugin-solid: 2.7.0_solid-js@1.7.11+vite@4.4.9
-
   packages/student:
     specifiers:
       '@solidjs/router': ^0.8.3
@@ -140,42 +120,40 @@ importers:
       vite: 4.4.9
       vite-plugin-solid: 2.7.0_solid-js@1.7.11+vite@4.4.9
 
-  packages/trpc:
+  packages/volunteer:
     specifiers:
-      '@trpc/server': ^10.0.0
-      '@types/cors': ^2.8.12
-      '@types/express': ^4.17.14
-      '@types/node': ^18.11.9
-      '@types/pg': ^8.10.2
+      '@modular-forms/solid': ^0.19.2
+      '@solidjs/router': ^0.8.3
+      '@tanstack/solid-query': 5.0.0-alpha.20
+      '@trpc/client': ^10.0.0
       '@types/ws': ^8.5.5
-      cors: ^2.8.5
-      dotenv: ^16.0.3
-      express: ^4.18.2
-      kysely: ^0.26.3
-      nodemon: ^2.0.20
-      pg: ^8.11.3
-      ts-node: ^10.9.1
-      typescript: ^4.9.3
+      autoprefixer: ^10.4.14
+      postcss: ^8.4.24
+      solid-devtools: ^0.27.3
+      solid-js: ^1.7.6
+      tailwindcss: ^3.3.2
+      typescript: ^5.1.3
+      vite: ^4.3.9
+      vite-plugin-solid: ^2.7.0
       ws: ^8.13.0
       zod: ^3.19.1
     dependencies:
-      '@trpc/server': 10.0.0
-      '@types/cors': 2.8.12
-      '@types/express': 4.17.14
-      '@types/node': 18.11.9
-      '@types/pg': 8.10.2
+      '@modular-forms/solid': 0.19.2_solid-js@1.7.11
+      '@solidjs/router': 0.8.3_solid-js@1.7.11
+      '@tanstack/solid-query': 5.0.0-alpha.20_solid-js@1.7.11
+      '@trpc/client': 10.0.0
       '@types/ws': 8.5.5
-      cors: 2.8.5
-      dotenv: 16.0.3
-      express: 4.18.2
-      kysely: 0.26.3
-      pg: 8.11.3
+      solid-js: 1.7.11
       ws: 8.13.0
       zod: 3.19.1
     devDependencies:
-      nodemon: 2.0.20
-      ts-node: 10.9.1_wup25etrarvlqkprac7h35hj7u
-      typescript: 4.9.3
+      autoprefixer: 10.4.15_postcss@8.4.29
+      postcss: 8.4.29
+      solid-devtools: 0.27.7_solid-js@1.7.11+vite@4.4.9
+      tailwindcss: 3.3.3
+      typescript: 5.2.2
+      vite: 4.4.9
+      vite-plugin-solid: 2.7.0_solid-js@1.7.11+vite@4.4.9
 
 packages:
 
@@ -1841,6 +1819,14 @@ packages:
       write-file-atomic: 4.0.2
     dev: true
 
+  /@modular-forms/solid/0.19.2_solid-js@1.7.11:
+    resolution: {integrity: sha512-ikOqWUUw2U8ShyYUQSQm7tNj1JLL+2wDhU4j9K/U0KKk3lIMJKwZEPb+jMIXVI/1yytwcg1cnVtulmhBAA10UA==}
+    peerDependencies:
+      solid-js: ^1.3.1
+    dependencies:
+      solid-js: 1.7.11
+    dev: false
+
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -2487,6 +2473,10 @@ packages:
     resolution: {integrity: sha512-+UfqJsNbPIVo0a9ANW0ZxtjiMfGLaaoIaL9vZeVycvmBuWywJGtSi7fgPVMCPdZQFOzMsaXaOsDtSKQD5xLRVQ==}
     dev: false
 
+  /@tanstack/query-core/5.0.0-alpha.19:
+    resolution: {integrity: sha512-3W30tOF9TKXdG2Ke2c+DHIVLkTTOK+4Zcynre6qDMjd6/xvK/hLhk0FYyrPAhLoxlqPrMS/4RqHjNGay7g19bQ==}
+    dev: false
+
   /@tanstack/react-query/4.16.1_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-PDE9u49wSDykPazlCoLFevUpceLjQ0Mm8i6038HgtTEKb/aoVnUZdlUP7C392ds3Cd75+EGlHU7qpEX06R7d9Q==}
     peerDependencies:
@@ -2503,6 +2493,15 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false
+
+  /@tanstack/solid-query/5.0.0-alpha.20_solid-js@1.7.11:
+    resolution: {integrity: sha512-6yhrIxunsXlct1txph0xv0rvOqgAR/FETgiRNt4gCJSmMsL1ISGKvKBgE0q4RyGNQK4aQJ4wj5ko6Z9HEmoZkg==}
+    peerDependencies:
+      solid-js: ^1.6.13
+    dependencies:
+      '@tanstack/query-core': 5.0.0-alpha.19
+      solid-js: 1.7.11
     dev: false
 
   /@tootallnate/once/2.0.0:
@@ -3119,7 +3118,6 @@ packages:
   /buffer-writer/2.0.0:
     resolution: {integrity: sha512-a7ZpuTZU1TRtnwyCNW3I5dc0wWNC3VR9S++Ewyk2HHZdrO3CQJqSpd+95Us590V6AL7JqUAH2IwZ/398PmNFgw==}
     engines: {node: '>=4'}
-    dev: false
 
   /buffer/5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
@@ -3752,7 +3750,6 @@ packages:
   /dotenv/16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /duplexer/0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
@@ -5068,10 +5065,33 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /kysely-codegen/0.10.1_kysely@0.26.3+pg@8.11.3:
+    resolution: {integrity: sha512-8Bslh952gN5gtucRv4jTZDFD18RBioS6M50zHfe5kwb5iSyEAunU4ZYMdHzkHraa4zxjg5/183XlOryBCXLRIw==}
+    hasBin: true
+    peerDependencies:
+      better-sqlite3: '>=7.6.2'
+      kysely: '>=0.19.12'
+      mysql2: ^2.3.3 || ^3.0.0
+      pg: ^8.8.0
+    peerDependenciesMeta:
+      better-sqlite3:
+        optional: true
+      mysql2:
+        optional: true
+      pg:
+        optional: true
+    dependencies:
+      chalk: 4.1.2
+      dotenv: 16.0.3
+      kysely: 0.26.3
+      micromatch: 4.0.5
+      minimist: 1.2.8
+      pg: 8.11.3
+    dev: true
+
   /kysely/0.26.3:
     resolution: {integrity: sha512-yWSgGi9bY13b/W06DD2OCDDHQmq1kwTGYlQ4wpZkMOJqMGCstVCFIvxCCVG4KfY1/3G0MhDAcZsip/Lw8/vJWw==}
     engines: {node: '>=14.0.0'}
-    dev: false
 
   /lerna/6.0.3:
     resolution: {integrity: sha512-DzRCTZGoDI502daViNK1Ha+HPAVvTp72xshDOQ6o6SWCDTvnxFI3hGF6CBqGWnOoPwEOlQowHEIcPw5PjoMz8A==}
@@ -5402,6 +5422,10 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: true
 
+  /minimist/1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+    dev: true
+
   /minipass-collect/1.0.2:
     resolution: {integrity: sha512-6T6lH0H8OG9kITm/Jm6tdooIbogG9e0tLgpY6mphXSm/A9u8Nq1ryBG+Qspiub9LjWlBPsPS3tWQ/Botq4FdxA==}
     engines: {node: '>= 8'}
@@ -5536,6 +5560,10 @@ packages:
   /neo-async/2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: true
+
+  /neverthrow/6.0.0:
+    resolution: {integrity: sha512-kPZKRs4VkdloCGQXPoP84q4sT/1Z+lYM61AXyV8wWa2hnuo5KpPBF2S3crSFnMrOgUISmEBP8Vo/ngGZX60NhA==}
+    dev: false
 
   /node-addon-api/3.2.1:
     resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}
@@ -5974,7 +6002,6 @@ packages:
 
   /packet-reader/1.0.0:
     resolution: {integrity: sha512-HAKu/fG3HpHFO0AA8WE8q2g+gBJaZ9MG7fcKk+IJPLTGAD6Psw4443l+9DGRbOIh3/aXr7Phy0TjilYivJo5XQ==}
-    dev: false
 
   /pacote/13.6.2:
     resolution: {integrity: sha512-Gu8fU3GsvOPkak2CkbojR7vjs3k3P9cA6uazKTHdsdV0gpCEQq2opelnEv30KRQWgVzP5Vd/5umjcedma3MKtg==}
@@ -6101,17 +6128,14 @@ packages:
   /pg-cloudflare/1.1.1:
     resolution: {integrity: sha512-xWPagP/4B6BgFO+EKz3JONXv3YDgvkbVrGw2mTo3D6tVDQRh1e7cqVGvyR3BE+eQgAvx1XhW/iEASj4/jCWl3Q==}
     requiresBuild: true
-    dev: false
     optional: true
 
   /pg-connection-string/2.6.2:
     resolution: {integrity: sha512-ch6OwaeaPYcova4kKZ15sbJ2hKb/VP48ZD2gE7i1J+L4MspCtBMAx8nMgz7bksc7IojCIIWuEhHibSMFH8m8oA==}
-    dev: false
 
   /pg-int8/1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
     engines: {node: '>=4.0.0'}
-    dev: false
 
   /pg-numeric/1.0.2:
     resolution: {integrity: sha512-BM/Thnrw5jm2kKLE5uJkXqqExRUY/toLHda65XgFTBTFYZyopbKjBe29Ii3RbkvlsMoFwD+tHeGaCjjv0gHlyw==}
@@ -6124,11 +6148,9 @@ packages:
       pg: '>=8.0'
     dependencies:
       pg: 8.11.3
-    dev: false
 
   /pg-protocol/1.6.0:
     resolution: {integrity: sha512-M+PDm637OY5WM307051+bsDia5Xej6d9IR4GwJse1qA1DIhiKlksvrneZOYQq42OM+spubpcNYEo2FcKQrDk+Q==}
-    dev: false
 
   /pg-types/2.2.0:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
@@ -6139,7 +6161,6 @@ packages:
       postgres-bytea: 1.0.0
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
-    dev: false
 
   /pg-types/4.0.1:
     resolution: {integrity: sha512-hRCSDuLII9/LE3smys1hRHcu5QGcLs9ggT7I/TCs0IE+2Eesxi9+9RWAAwZ0yaGjxoWICF/YHLOEjydGujoJ+g==}
@@ -6172,13 +6193,11 @@ packages:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.1.1
-    dev: false
 
   /pgpass/1.0.5:
     resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
     dependencies:
       split2: 4.2.0
-    dev: false
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -6352,7 +6371,6 @@ packages:
   /postgres-array/2.0.0:
     resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
     engines: {node: '>=4'}
-    dev: false
 
   /postgres-array/3.0.2:
     resolution: {integrity: sha512-6faShkdFugNQCLwucjPcY5ARoW1SlbnrZjmGl0IrrqewpvxvhSLHimCVzqeuULCbG0fQv7Dtk1yDbG3xv7Veog==}
@@ -6362,7 +6380,6 @@ packages:
   /postgres-bytea/1.0.0:
     resolution: {integrity: sha512-xy3pmLuQqRBZBXDULy7KbaitYqLcmxigw14Q5sj8QBVLqEwXfeybIKVWiqAXTlcvdvb0+xkOtDbfQMOf4lST1w==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /postgres-bytea/3.0.0:
     resolution: {integrity: sha512-CNd4jim9RFPkObHSjVHlVrxoVQXz7quwNFpz7RY1okNNme49+sVyiTvTRobiLV548Hx/hb1BG+iE7h9493WzFw==}
@@ -6374,7 +6391,6 @@ packages:
   /postgres-date/1.0.7:
     resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /postgres-date/2.0.1:
     resolution: {integrity: sha512-YtMKdsDt5Ojv1wQRvUhnyDJNSr2dGIC96mQVKz7xufp07nfuFONzdaowrMHjlAzY6GDLd4f+LUHHAAM1h4MdUw==}
@@ -6386,7 +6402,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       xtend: 4.0.2
-    dev: false
 
   /postgres-interval/3.0.0:
     resolution: {integrity: sha512-BSNDnbyZCXSxgA+1f5UU2GmwhoI0aU5yMxRGO8CdFEcY2BQF9xm/7MqKnYoM1nJDk8nONNWDk9WeSmePFhQdlw==}
@@ -7004,7 +7019,6 @@ packages:
   /split2/4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
-    dev: false
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
