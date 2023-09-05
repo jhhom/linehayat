@@ -4,6 +4,8 @@ import { inferAsyncReturnType } from "@trpc/server";
 import { IncomingMessage } from "http";
 import ws from "ws";
 
+import type { SubscriptionMessage } from "@api-contract/subscription";
+
 export type Socket = Observer<SubscriptionMessage, unknown>;
 
 type Session = {
@@ -24,19 +26,6 @@ type Session = {
       }
     | null;
 };
-
-type StudentEventPayload = {
-  request_accepted: {};
-};
-
-type SubscriptionMessage = {
-  [k in keyof SubscriptionEventPayload]: {
-    event: k;
-    payload: SubscriptionEventPayload[k];
-  };
-}[keyof SubscriptionEventPayload];
-
-type SubscriptionEventPayload = {};
 
 export class Context {
   readonly session: Session;

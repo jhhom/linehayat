@@ -4,9 +4,15 @@ importers:
 
   .:
     specifiers:
+      '@trpc/server': ^10.0.0
       lerna: ^6.0.3
+      neverthrow: ^6.0.0
+      superjson: ^1.13.1
       zod: ^3.19.1
     dependencies:
+      '@trpc/server': 10.0.0
+      neverthrow: 6.0.0
+      superjson: 1.13.1
       zod: 3.19.1
     devDependencies:
       lerna: 6.0.3

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const contract = {
+const volunteerContract = {
   "volunteer/login": {
     input: z.object({
       email: z.string(),
@@ -12,4 +12,8 @@ export const contract = {
   },
 };
 
+export const contract = {
+  ...volunteerContract,
+};
 
+export type Contract = typeof contract
