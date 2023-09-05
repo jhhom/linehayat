@@ -4,7 +4,7 @@ import { inferAsyncReturnType } from "@trpc/server";
 import { IncomingMessage } from "http";
 import ws from "ws";
 
-import type { SubscriptionMessage } from "@api-contract/subscription";
+import type { SubscriptionMessage } from "../../../api-contract/subscription";
 
 export type Socket = Observer<SubscriptionMessage, unknown>;
 

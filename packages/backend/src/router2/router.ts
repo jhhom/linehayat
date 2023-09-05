@@ -2,11 +2,12 @@ import superjson from "superjson";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { IContext } from "./context";
 import { Kysely } from "kysely";
-import { DB } from "~/core/schema";
+import { DB } from "../core/schema";
 
-import { contract } from "@api-contract/endpoints";
+import { contract } from "../../../api-contract/endpoints";
 import { observable } from "@trpc/server/observable";
 import type { Socket } from "./context";
+import { SubscriptionMessage } from "../../../api-contract/subscription";
 
 const t = initTRPC.context<IContext>().create({
   transformer: superjson,
@@ -90,7 +91,7 @@ function initRouter(
         return cleanup;
       };
 
-      return observableCallback;
+      return observable<SubscriptionMessage>(observableCallback);
     }),
     ["volunteer/login"]: procedure
       .use(isAuthedAsAnonymous)

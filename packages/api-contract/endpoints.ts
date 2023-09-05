@@ -16,4 +16,4 @@ export const contract = {
   ...volunteerContract,
 };
 
-export type Contract = typeof contract
+export type Contract = typeof contract;

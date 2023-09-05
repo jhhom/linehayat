@@ -9,7 +9,7 @@ import type { IApiClient } from "@api-contract/client";
 
 import { Unsubscribable } from "@trpc/server/observable";
 import { SubscriptionEventPayload } from "@api-contract/subscription";
-import { ServiceInput } from "@api-contract/types";
+import { ServiceInput, ServiceSyncResult } from "@api-contract/types";
 
 type RouterError = inferRouterError<IAppRouter>;
 
@@ -35,7 +35,7 @@ export class Client implements IApiClient {
         }),
         wsLink<IAppRouter>({
           client: createWSClient({
-            url: "ws://localhost:5001",
+            url: "ws://localhost:4001",
           }),
         }),
       ],
@@ -92,8 +92,21 @@ export class Client implements IApiClient {
   }
 
   async ["volunteer/login"](arg: ServiceInput<"volunteer/login">) {
-    return await this.#fromApiPromise(
-      this.#trpc["volunteer/login"].mutate(arg)
+    return new Promise<ServiceSyncResult<"volunteer/login">>((resolve) =>
+      this.#trpc["register_socket"].subscribe(undefined, {
+        onStarted: async () => {
+          const r = await this.#fromApiPromise(
+            this.#trpc["volunteer/login"].mutate(arg)
+          );
+          if (r.isErr()) {
+            resolve(err(r.error));
+            return;
+          }
+          resolve(ok(r.value));
+        },
+      })
     );
   }
 }
+
+export const client: IApiClient = new Client();
