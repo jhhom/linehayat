@@ -1,12 +1,12 @@
 import { CamelCasePlugin, PostgresDialect, Kysely } from "kysely";
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { WebSocketServer } from "ws";
-import { Socket, createContextBuilder } from "./router2/context";
+import { Socket, createContextBuilder } from "./router/context";
 
 import pg from "pg";
 import { loadConfig } from "./config/config";
 import { DB } from "./core/schema";
-import { initRouter } from "./router2/router";
+import { initRouter } from "./router/router";
 
 const Pool = pg.Pool;
 
@@ -40,7 +40,13 @@ const wss = new WebSocketServer({
 });
 const handler = applyWSSHandler({
   wss,
-  router: initRouter(db, onlineVolunteers, onlineStudents),
+  router: initRouter(
+    db,
+    { onlineVolunteers, onlineStudents },
+    {
+      jwtKey: "haha",
+    }
+  ),
   createContext: createContextBuilder(),
 });
 

@@ -3,11 +3,14 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { IContext, Socket } from "./context";
 import { Kysely } from "kysely";
 
-import { DB } from "~/backend/core/schema";
+import { DB } from "~/core/schema";
 import { observable } from "@trpc/server/observable";
 
 import { SubscriptionMessage } from "@api-contract/subscription";
 import { contract } from "@api-contract/endpoints";
+import { OnlineStudents, OnlineVolunteers } from "~/core/context";
+
+import * as volunteerService from "~/service/volunteer";
 
 const t = initTRPC.context<IContext>().create({
   transformer: superjson,
@@ -66,8 +69,16 @@ const isAuthedAsVolunteer = t.middleware(async ({ ctx, next }) => {
 
 function initRouter(
   db: Kysely<DB>,
-  onlineVolunteers: Map<string, Socket>,
-  onlineStudents: Map<string, Socket>
+  {
+    onlineStudents,
+    onlineVolunteers,
+  }: {
+    onlineVolunteers: OnlineVolunteers;
+    onlineStudents: OnlineStudents;
+  },
+  config: {
+    jwtKey: string;
+  }
 ) {
   const mainRouter = router({
     ["register_socket"]: procedure.subscription(async ({ input, ctx }) => {
@@ -98,14 +109,26 @@ function initRouter(
       .input(contract["volunteer/login"].input)
       .output(contract["volunteer/login"].output)
       .mutation(async ({ input, ctx }) => {
+        const result = await volunteerService.login(
+          { db, onlineVolunteers, jwtKey: config.jwtKey },
+          {
+            email: input.email,
+            password: input.password,
+            socket: ctx.auth.socket,
+          }
+        );
+
+        if (result.isErr()) {
+          throw result.error;
+        }
+
         ctx.ctx.setAuth({
+          type: "volunteer",
           socket: ctx.auth.socket,
           email: input.email,
-          type: "volunteer",
         });
-        return {
-          token: "haha",
-        };
+
+        return result.value;
       }),
   });
 

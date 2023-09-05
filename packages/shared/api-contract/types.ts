@@ -1,14 +1,15 @@
 import type { Contract } from "./endpoints";
 import { Result } from "neverthrow";
 import { z } from "zod";
+import { AppErrorUnion } from "./errors";
 
 export type ServiceResult<T extends keyof Contract> = Promise<
-  Result<z.infer<Contract[T]["output"]>, unknown>
+  Result<z.infer<Contract[T]["output"]>, AppErrorUnion>
 >;
 
 export type ServiceSyncResult<T extends keyof Contract> = Result<
   z.infer<Contract[T]["output"]>,
-  unknown
+  AppErrorUnion
 >;
 
 export type ServiceOutput<T extends keyof Contract> = z.infer<

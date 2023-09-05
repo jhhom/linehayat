@@ -24,8 +24,8 @@ export default function LoginPage() {
 
   onMount(async () => {
     const r = client["volunteer/login"]({
-      email: "haha",
-      password: "haha",
+      email: "james@example.com",
+      password: "james123",
     });
     console.log(r);
   });

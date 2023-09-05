@@ -5,7 +5,7 @@ import { loggerLink } from "@trpc/client/links/loggerLink";
 import { fromPromise, ok, err } from "neverthrow";
 import { inferRouterError } from "@trpc/server";
 
-import type { IAppRouter } from "@backend/backend/router2/router";
+import type { IAppRouter } from "@backend/router/router";
 import { IApiClient } from "@api-contract/client";
 
 import { Unsubscribable } from "@trpc/server/observable";
@@ -47,7 +47,7 @@ export class Client implements IApiClient {
   }
 
   #fromApiPromise<T>(promise: Promise<T>) {
-    return fromPromise(promise, (e) => e);
+    return fromPromise(promise, (e) => e as RouterError);
   }
 
   addListener<T extends keyof SubscriptionEventPayload>(
