@@ -2,16 +2,14 @@ import { onMount, type Component, createSignal } from "solid-js";
 import { Route, Routes, Router } from "@solidjs/router";
 import trpc from "./utils/trpc";
 
-import HomePage from "./pages/Home.page";
-import ChatPage from "./pages/Chat.page";
-import VolunteerLoginPage from "~/pages/VolunteerLogin.page";
+import LoginPage from "~/pages/Login.page";
+import DashboardPage from "~/pages/Dashboard.page";
 
 const App: Component = () => {
   return (
     <Routes>
-      <Route path="/" component={HomePage}></Route>
-      <Route path="/chat" component={ChatPage}></Route>
-      <Route path="/volunteer-login" component={VolunteerLoginPage}></Route>
+      <Route path="/" component={LoginPage}></Route>
+      <Route path="/dashboard" component={DashboardPage}></Route>
     </Routes>
   );
 };
