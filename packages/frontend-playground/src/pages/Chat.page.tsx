@@ -5,7 +5,7 @@ import trpc from "~/utils/trpc";
 
 function Content1() {
   return (
-    <div class="w-full h-full flex justify-center items-center">
+    <div class="flex h-full w-full items-center justify-center">
       <div class="text-center text-lg">
         <p>Hi, how are you today?</p>
 
@@ -18,8 +18,8 @@ function Content1() {
 function HowItWorksDescription(props: { imgSrc: string; description: string }) {
   return (
     <div class="w-64">
-      <div class="w-full flex justify-center">
-        <div class="w-36 h-36">
+      <div class="flex w-full justify-center">
+        <div class="h-36 w-36">
           <img src={props.imgSrc} />
         </div>
       </div>
@@ -31,12 +31,12 @@ function HowItWorksDescription(props: { imgSrc: string; description: string }) {
 
 function Content2() {
   return (
-    <div class="pt-6 px-6">
+    <div class="px-6 pt-6">
       <p class="text-xl">
         How does LineHayat's anonymous chat support service work?
       </p>
 
-      <div class="w-full mt-32 flex justify-between">
+      <div class="mt-32 flex w-full justify-between">
         <HowItWorksDescription
           imgSrc="how-it-works-1.svg"
           description="Read the terms and conditions, before clicking 'Next'."
@@ -51,7 +51,7 @@ function Content2() {
         />
       </div>
 
-      <div class="text-center mt-12 text-xl">
+      <div class="mt-12 text-center text-xl">
         <p>
           Note: Every chat is appointed at an approximate time of 20 minutes.
         </p>
@@ -79,7 +79,7 @@ function Content3(props: {
         </p>
 
         <div class="mt-4">
-          <ol class="list-decimal space-y-2 list-inside">
+          <ol class="list-inside list-decimal space-y-2">
             <li>
               We provide immediate and accessible emotional support to students.
             </li>
@@ -102,7 +102,7 @@ function Content3(props: {
             <li>
               We have taken three significant steps to ensure a high level of
               security:
-              <ol class="list-[upper-roman] space-y-2 list-inside pl-5">
+              <ol class="list-inside list-[upper-roman] space-y-2 pl-5">
                 <li class="mt-2">
                   Both you and the Listening Volunteer will remain anonymous.
                 </li>
@@ -115,9 +115,9 @@ function Content3(props: {
             </li>
           </ol>
 
-          <div class="flex px-2 mt-4 items-center">
+          <div class="mt-4 flex items-center px-2">
             <input
-              class="block w-4 h-4 cursor-pointer"
+              class="block h-4 w-4 cursor-pointer"
               type="checkbox"
               name=""
               id=""
@@ -146,22 +146,22 @@ function ChatPage() {
 
   return (
     <div>
-      <div class="w-full bg-blue-100 h-16">
-        <div class="container mx-auto flex items-center h-full">
+      <div class="h-16 w-full bg-blue-100">
+        <div class="container mx-auto flex h-full items-center">
           <p>Navbar</p>
         </div>
       </div>
 
       <div class="container mx-auto">
         <div class="w-full">
-          <div class="flex items-center mt-3">
-            <div class="w-12 h-12 p-1">
-              <img class="w-12 h-12" src="chat-bubbles.svg" />
+          <div class="mt-3 flex items-center">
+            <div class="h-12 w-12 p-1">
+              <img class="h-12 w-12" src="chat-bubbles.svg" />
             </div>
-            <p class="text-lg h-12 ml-2 pt-4">LineHayat Live Chat</p>
+            <p class="ml-2 h-12 pt-4 text-lg">LineHayat Live Chat</p>
           </div>
 
-          <div class="w-full h-[640px] mt-4">
+          <div class="mt-4 h-[640px] w-full">
             <div class="h-full w-full rounded-lg bg-blue-100">
               <div class="h-[85%] w-full">
                 {match(card())
@@ -177,11 +177,11 @@ function ChatPage() {
                     <Content1 />
                   ))}
               </div>
-              <div class="h-[15%] flex justify-between items-center px-6">
+              <div class="flex h-[15%] items-center justify-between px-6">
                 <div>
                   <button
                     onClick={() => setCard((c) => c - 1)}
-                    class="rounded-full px-6 py-2 text-lg bg-white"
+                    class="rounded-full bg-white px-6 py-2 text-lg"
                     classList={{ hidden: card() === 0 }}
                   >
                     Previous

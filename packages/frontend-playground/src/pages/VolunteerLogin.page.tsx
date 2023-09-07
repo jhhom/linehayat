@@ -12,8 +12,8 @@ export default function VolunteerLoginPage() {
   });
 
   return (
-    <div class="flex justify-center items-center w-screen h-screen">
-      <div class="w-96 py-4 rounded-md border border-gray-300">
+    <div class="flex h-screen w-screen items-center justify-center">
+      <div class="w-96 rounded-md border border-gray-300 py-4">
         <p class="text-center">Volunteer login</p>
 
         <div class="mt-4">
@@ -25,7 +25,7 @@ export default function VolunteerLoginPage() {
               <input
                 id="email"
                 type="text"
-                class="block mt-1 border border-gray-300 rounded-md py-2 px-2 w-full"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-2 py-2"
               />
             </div>
 
@@ -36,14 +36,14 @@ export default function VolunteerLoginPage() {
               <input
                 type="text"
                 id="password"
-                class="block mt-1 border border-gray-300 rounded-md py-2 px-2 w-full"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-2 py-2"
               />
             </div>
 
             <div class="mt-8">
               <button
                 type="submit"
-                class="block px-4 py-2 ml-auto bg-red-100 rounded-md"
+                class="ml-auto block rounded-md bg-red-100 px-4 py-2"
               >
                 Login
               </button>
