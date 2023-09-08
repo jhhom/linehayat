@@ -5,25 +5,32 @@ import { IncomingMessage } from "http";
 
 import ws from "ws";
 
-import type { SubscriptionMessage } from "@api-contract/subscription";
+import type {
+  VolunteerSubscriptionMessage,
+  StudentSubscriptionMessage,
+} from "@api-contract/subscription";
+import { StudentId } from "~/core/memory";
 
-export type Socket = Observer<SubscriptionMessage, unknown>;
+export type StudentSocket = Observer<StudentSubscriptionMessage, unknown>;
+
+export type VolunteerSocket = Observer<VolunteerSubscriptionMessage, unknown>;
 
 type Session = {
   auth:
     | {
         type: "student";
-        studentId: string;
-        socket: Socket;
+        // studentId = null: means student is not having any identity yet
+        // studentId will be `null` in situations where:
+        // - student have call `student/register_socket`, but haven't call either
+        //    - student/make_request
+        //    - student/associate_session
+        studentId: StudentId | null;
+        socket: StudentSocket;
       }
     | {
         type: "volunteer";
-        email: string;
-        socket: Socket;
-      }
-    | {
-        type: "anonymous";
-        socket: Socket;
+        username: string | null;
+        socket: VolunteerSocket;
       }
     | null;
 };

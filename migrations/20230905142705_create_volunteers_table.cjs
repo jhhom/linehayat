@@ -3,7 +3,7 @@ exports.up = async function (knex) {
     CREATE TABLE volunteers (
         id SERIAL PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
-        name TEXT NOT NULL,
+        username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
         created_at TIMESTAMP DEFAULT NOW() NOT NULL

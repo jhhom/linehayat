@@ -1,12 +1,12 @@
-import { OnlineVolunteers } from "~/core/context";
+import { volunteerUsernameToId, type OnlineVolunteers } from "~/core/memory";
 import type { ServiceResult } from "@api-contract/types";
 import { ok, err } from "neverthrow";
-import { AppError } from "../../../../shared/api-contract/errors";
+import { AppError } from "@api-contract/errors";
 import { Kysely } from "kysely";
 import { DB } from "~/core/schema";
 import { bcrypt, jwt } from "~/lib/lib";
 import { JwtPayload } from "jsonwebtoken";
-import { Socket } from "~/router/context";
+import { VolunteerSocket } from "~/router/context";
 
 export async function login(
   {
@@ -19,15 +19,15 @@ export async function login(
     jwtKey: string;
   },
   input: {
-    email: string;
+    username: string;
     password: string;
-    socket: Socket;
+    socket: VolunteerSocket;
   }
 ): ServiceResult<"volunteer/login"> {
   const passwordResult = await db
     .selectFrom("volunteers")
     .select(["password"])
-    .where("email", "=", input.email)
+    .where("username", "=", input.username)
     .executeTakeFirst();
   if (passwordResult === undefined) {
     return err(new AppError("RESOURCE_NOT_FOUND", { resource: "volunteer" }));
@@ -37,7 +37,7 @@ export async function login(
     return err(new AppError("AUTH.INCORRECT_PASSWORD", undefined));
   }
 
-  const token = jwt.sign({ email: input.email } as JwtPayload, jwtKey, {
+  const token = jwt.sign({ username: input.username } as JwtPayload, jwtKey, {
     expiresIn: "10000h",
   });
   if (token.isErr()) {
@@ -45,7 +45,7 @@ export async function login(
     return err(new AppError("UNKNOWN", { cause: token.error }));
   }
 
-  onlineVolunteers.set(input.email, input.socket);
+  onlineVolunteers.set(volunteerUsernameToId(input.username), input.socket);
 
   return ok({ token: token.value });
 }

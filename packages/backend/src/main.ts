@@ -8,6 +8,8 @@ import { loadConfig } from "./config/config";
 import { DB } from "./core/schema";
 import { initRouter } from "./router/router";
 
+import { onlineStudents, onlineVolunteers } from "~/core/memory";
+
 const Pool = pg.Pool;
 
 const config = loadConfig();
@@ -31,9 +33,6 @@ const db = new Kysely<DB>({
   },
   plugins: [new CamelCasePlugin()],
 });
-
-const onlineStudents = new Map<string, Socket>();
-const onlineVolunteers = new Map<string, Socket>();
 
 const wss = new WebSocketServer({
   port: 4001,

@@ -3,7 +3,7 @@ import { z } from "zod";
 const volunteerContract = {
   "volunteer/login": {
     input: z.object({
-      email: z.string(),
+      username: z.string(),
       password: z.string(),
     }),
     output: z.object({
