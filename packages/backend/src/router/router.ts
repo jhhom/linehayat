@@ -179,7 +179,14 @@ function initRouter(
 
         return result.value;
       }),
-  
+    ["student/make_request"]: procedure
+      .use(guardHasStudentSocket)
+      .output(contract["student/make_request"].output)
+      .mutation(async ({ input, ctx }) => {
+        return {
+          token: "",
+        };
+      }),
   });
 
   return mainRouter;

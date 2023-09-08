@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "kysely-codegen": "^0.10.1",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",

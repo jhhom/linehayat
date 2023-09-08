@@ -12,8 +12,17 @@ const volunteerContract = {
   },
 };
 
+const studentContract = {
+  "student/make_request": {
+    output: z.object({
+      token: z.string(),
+    }),
+  },
+};
+
 export const contract = {
   ...volunteerContract,
+  ...studentContract,
 };
 
 export type Contract = typeof contract;
