@@ -4,12 +4,14 @@ import trpc from "./utils/trpc";
 
 import LoginPage from "~/pages/Login.page";
 import DashboardPage from "~/pages/Dashboard.page";
+import ChatPage from "~/pages/Chat.page/Chat.page";
 
 const App: Component = () => {
   return (
     <Routes>
       <Route path="/" component={LoginPage}></Route>
       <Route path="/dashboard" component={DashboardPage}></Route>
+      <Route path="/chat" component={ChatPage}></Route>
     </Routes>
   );
 };
