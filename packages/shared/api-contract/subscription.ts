@@ -1,3 +1,5 @@
+import { VolunteerId, StudentId } from "~/core/memory";
+
 export type StudentSubscriptionMessage = {
   [k in keyof StudentSubscriptionEventPayload]: {
     event: k;
@@ -16,4 +18,23 @@ export type VolunteerSubscriptionMessage = {
   };
 }[keyof VolunteerSubscriptionEventPayload];
 
-export type VolunteerSubscriptionEventPayload = {};
+export type VolunteerSubscriptionEventPayload = {
+  "volunteer.dashboard_update": DashboardUpdate;
+};
+
+export type DashboardUpdate = {
+  onlineVolunteers: {
+    volunteerId: VolunteerId;
+    status:
+      | {
+          status: "free";
+        }
+      | {
+          status: "busy";
+          chattingWith: StudentId;
+        };
+  }[];
+  pendingRequests: {
+    studentId: StudentId;
+  }[];
+};

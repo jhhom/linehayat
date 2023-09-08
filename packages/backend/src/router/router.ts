@@ -11,10 +11,15 @@ import {
   StudentSubscriptionMessage,
   VolunteerSubscriptionMessage,
 } from "@api-contract/subscription";
-import { OnlineStudents, OnlineVolunteers } from "~/core/memory";
+import {
+  OnlineStudents,
+  OnlineVolunteers,
+  VolunteerStudentPairs,
+} from "~/core/memory";
 
 import { volunteerUsernameToId } from "~/core/memory";
 import * as volunteerService from "~/service/volunteer";
+import { makeRequest } from "~/service/student/make-request.service";
 
 const t = initTRPC.context<IContext>().create({
   transformer: superjson,
@@ -76,9 +81,11 @@ function initRouter(
   {
     onlineStudents,
     onlineVolunteers,
+    volunteerStudentPairs,
   }: {
     onlineVolunteers: OnlineVolunteers;
     onlineStudents: OnlineStudents;
+    volunteerStudentPairs: VolunteerStudentPairs;
   },
   config: {
     jwtKey: string;
@@ -183,9 +190,22 @@ function initRouter(
       .use(guardHasStudentSocket)
       .output(contract["student/make_request"].output)
       .mutation(async ({ input, ctx }) => {
-        return {
-          token: "",
-        };
+        const result = await makeRequest(
+          {
+            db,
+            onlineStudents,
+            onlineVolunteers,
+            volunteerStudentPairs,
+            jwtKey: config.jwtKey,
+          },
+          ctx.auth.socket
+        );
+
+        if (result.isErr()) {
+          throw result.error;
+        }
+
+        return result.value;
       }),
   });
 

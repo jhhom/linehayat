@@ -11,10 +11,10 @@ export const volunteerUsernameToId = (username: string): VolunteerId =>
 
 const onlineStudents = new Map<StudentId, StudentSocket>();
 const onlineVolunteers = new Map<VolunteerId, VolunteerSocket>();
+const volunteerStudentPairs = new Map<VolunteerId, StudentId>();
 
 export type OnlineStudents = typeof onlineStudents;
 export type OnlineVolunteers = typeof onlineVolunteers;
-
-const volunteerStudentPairs = new Map<StudentId, VolunteerId>();
+export type VolunteerStudentPairs = typeof volunteerStudentPairs;
 
 export { onlineStudents, onlineVolunteers, volunteerStudentPairs };
