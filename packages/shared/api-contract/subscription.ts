@@ -1,4 +1,6 @@
-import { VolunteerId, StudentId } from "~/core/memory";
+import { VolunteerId, StudentId } from "@api-contract/types";
+import { zVolunteerId, zStudentId } from "@api-contract/types";
+import { z } from "zod";
 
 export type StudentSubscriptionMessage = {
   [k in keyof StudentSubscriptionEventPayload]: {
@@ -22,19 +24,26 @@ export type VolunteerSubscriptionEventPayload = {
   "volunteer.dashboard_update": DashboardUpdate;
 };
 
-export type DashboardUpdate = {
-  onlineVolunteers: {
-    volunteerId: VolunteerId;
-    status:
-      | {
-          status: "free";
-        }
-      | {
-          status: "busy";
-          chattingWith: StudentId;
-        };
-  }[];
-  pendingRequests: {
-    studentId: StudentId;
-  }[];
-};
+export const zDashboardUpdateSchema = z.object({
+  onlineVolunteers: z.array(
+    z.object({
+      volunteerId: zVolunteerId,
+      status: z.discriminatedUnion("status", [
+        z.object({
+          status: z.literal("free"),
+        }),
+        z.object({
+          status: z.literal("busy"),
+          chattingWith: zStudentId,
+        }),
+      ]),
+    })
+  ),
+  pendingRequests: z.array(
+    z.object({
+      studentId: zStudentId,
+    })
+  ),
+});
+
+export type DashboardUpdate = z.infer<typeof zDashboardUpdateSchema>;

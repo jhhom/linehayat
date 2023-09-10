@@ -1,14 +1,18 @@
 import { CamelCasePlugin, PostgresDialect, Kysely } from "kysely";
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { WebSocketServer } from "ws";
-import { Socket, createContextBuilder } from "./router/context";
+import { createContextBuilder } from "@backend/router/context";
 
 import pg from "pg";
-import { loadConfig } from "./config/config";
-import { DB } from "./core/schema";
-import { initRouter } from "./router/router";
+import { loadConfig } from "@backend/config/config";
+import { DB } from "@backend/core/schema";
+import { initRouter } from "@backend/router/router";
 
-import { onlineStudents, onlineVolunteers } from "~/core/memory";
+import {
+  onlineStudents,
+  onlineVolunteers,
+  volunteerStudentPairs,
+} from "@backend/core/memory";
 
 const Pool = pg.Pool;
 
@@ -41,9 +45,9 @@ const handler = applyWSSHandler({
   wss,
   router: initRouter(
     db,
-    { onlineVolunteers, onlineStudents },
+    { onlineVolunteers, onlineStudents, volunteerStudentPairs },
     {
-      jwtKey: "haha",
+      jwtKey: config.value.JWT_KEY,
     }
   ),
   createContext: createContextBuilder(),

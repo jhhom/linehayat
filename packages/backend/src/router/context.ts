@@ -1,15 +1,16 @@
 import type { Observer } from "@trpc/server/observable";
 import type { NodeHTTPCreateContextFnOptions } from "@trpc/server/dist/adapters/node-http";
-import { inferAsyncReturnType } from "@trpc/server";
+import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import { IncomingMessage } from "http";
-
+import superjson from "superjson";
 import ws from "ws";
 
 import type {
   VolunteerSubscriptionMessage,
   StudentSubscriptionMessage,
 } from "@api-contract/subscription";
-import { StudentId } from "~/core/memory";
+import type { StudentId } from "@api-contract/types";
+import { serializeTRPCSourceError } from "@backend/router/error-formatter";
 
 export type StudentSocket = Observer<StudentSubscriptionMessage, unknown>;
 
@@ -76,3 +77,14 @@ export type IContext = inferAsyncReturnType<
 >;
 
 export type IServiceContext = Context;
+
+export function makeAppTRPC() {
+  return initTRPC.context<IContext>().create({
+    transformer: superjson,
+    errorFormatter: (opts) => {
+      return serializeTRPCSourceError(opts);
+    },
+  });
+}
+
+export type AppTRPC = ReturnType<typeof makeAppTRPC>;

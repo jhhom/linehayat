@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { sqrt } from "~/utils/math";
+import { sqrt } from "@backend/utils/math";
 
 test("Math.sqrt()", () => {
   expect(sqrt(4)).toBe(2);

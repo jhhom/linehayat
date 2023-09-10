@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const configSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  // JWT_KEY: z.string().min(1),
+  JWT_KEY: z.string().min(1),
 });
 
 const loadConfig = () => {

@@ -5,32 +5,29 @@ import { fromPromise, ok, err } from "neverthrow";
 
 import { AppError, type AppErrorUnion } from "@api-contract/errors";
 import type { Unsubscribable } from "@trpc/server/observable";
-import type {
-  StudentSubscriptionEventPayload,
-  VolunteerSubscriptionEventPayload,
-} from "@api-contract/subscription";
+import type { StudentSubscriptionEventPayload } from "@api-contract/subscription";
 
-import type { IVolunteerClient } from "@api-contract/client";
+import type { IStudentClient } from "@api-contract/client";
+import type { IAppStudentRouter } from "@backend/router/router-student";
 import type { IAppRouter } from "@backend/router/router";
 
 import { config } from "@config/config";
 
 import { RouterError } from "@backend/router/error-formatter";
-import { ServiceInput, ServiceSyncResult } from "@api-contract/types";
-import { IAppVolunteerRouter } from "@backend/router/router-volunteer";
+import { ServiceSyncResult } from "@api-contract/types";
 
-export class Client implements IVolunteerClient {
-  #trpc: ReturnType<typeof createTRPCProxyClient<IAppVolunteerRouter>>;
+export class Client implements IStudentClient {
+  #trpc: ReturnType<typeof createTRPCProxyClient<IAppStudentRouter>>;
   #subscription: Unsubscribable | undefined;
   #socketListeners: {
-    [k in keyof VolunteerSubscriptionEventPayload]: Map<
+    [k in keyof StudentSubscriptionEventPayload]: Map<
       number,
-      (arg: VolunteerSubscriptionEventPayload[k]) => void
+      (arg: StudentSubscriptionEventPayload[k]) => void
     >;
   };
 
   constructor() {
-    this.#trpc = createTRPCProxyClient<IAppVolunteerRouter>({
+    this.#trpc = createTRPCProxyClient<IAppStudentRouter>({
       transformer: superjson,
       links: [
         loggerLink({
@@ -47,13 +44,13 @@ export class Client implements IVolunteerClient {
       ],
     });
     this.#socketListeners = {
-      "volunteer.dashboard_update": new Map(),
+      "student.request_accepted": new Map(),
     };
   }
 
-  addListener<T extends keyof VolunteerSubscriptionEventPayload>(
+  addListener<T extends keyof StudentSubscriptionEventPayload>(
     event: T,
-    listener: (payload: VolunteerSubscriptionEventPayload[T]) => void,
+    listener: (payload: StudentSubscriptionEventPayload[T]) => void,
   ) {
     const min = Math.ceil(1);
     const max = Math.floor(10_000);
@@ -75,15 +72,15 @@ export class Client implements IVolunteerClient {
   }
 
   removeListener(
-    event: keyof VolunteerSubscriptionEventPayload,
+    event: keyof StudentSubscriptionEventPayload,
     listenerId: number,
   ) {
     this.#socketListeners[event].delete(listenerId);
   }
 
-  #runListener<T extends keyof VolunteerSubscriptionEventPayload>(
+  #runListener<T extends keyof StudentSubscriptionEventPayload>(
     event: T,
-    payload: VolunteerSubscriptionEventPayload[T],
+    payload: StudentSubscriptionEventPayload[T],
   ) {
     for (const listener of this.#socketListeners[event].values()) {
       listener(payload);
@@ -97,25 +94,16 @@ export class Client implements IVolunteerClient {
     );
   }
 
-  async ["volunteer/accept_request"](
-    arg: ServiceInput<"volunteer/accept_request">,
-  ) {
-    const r = await this.#fromApiPromise(
-      this.#trpc["volunteer/accept_request"].mutate(arg),
-    );
-    return r;
-  }
-
-  async ["volunteer/login"](arg: ServiceInput<"volunteer/login">) {
+  async ["student/make_request"]() {
     if (this.#subscription !== undefined) {
       this.#subscription.unsubscribe();
     }
 
-    return new Promise<ServiceSyncResult<"volunteer/login">>((resolve) => {
-      this.#trpc["volunteer/register_socket"].subscribe(undefined, {
+    return new Promise<ServiceSyncResult<"student/make_request">>((resolve) => {
+      this.#trpc["student/register_socket"].subscribe(undefined, {
         onStarted: async () => {
           const r = await this.#fromApiPromise(
-            this.#trpc["volunteer/login"].mutate(arg),
+            this.#trpc["student/make_request"].mutate(),
           );
           if (r.isErr()) {
             resolve(err(r.error));

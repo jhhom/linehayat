@@ -1,20 +1,21 @@
 import { Kysely } from "kysely";
-import { DB } from "~/core/schema";
+import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  StudentId,
-  VolunteerId,
   VolunteerStudentPairs,
   volunteerStudentPairs,
-} from "~/core/memory";
+} from "@backend/core/memory";
+import type { StudentId } from "@api-contract/types";
 import { faker } from "@faker-js/faker";
-import { StudentSocket } from "~/router/context";
+import { Context, StudentSocket } from "@backend/router/context";
 import { DashboardUpdate } from "@api-contract/subscription";
 import { AppError } from "@api-contract/errors";
 import { JwtPayload } from "jsonwebtoken";
-import { jwt } from "~/lib/lib";
+import { jwt } from "@backend/lib/lib";
 import { ok, err } from "neverthrow";
+import { broadcastToVolunteers } from "@backend/core/memory";
+import { latestDashboardUpdate } from "@backend/service/common/dashboard";
 
 export async function makeRequest(
   {
@@ -29,23 +30,25 @@ export async function makeRequest(
     volunteerStudentPairs: VolunteerStudentPairs;
     jwtKey: string;
   },
-  socket: StudentSocket
+  studentCtx: {
+    socket: StudentSocket;
+    setAuth: (args: Parameters<Context["setAuth"]>[0]) => void;
+  }
 ) {
   // 1. generate a student username
   const username = randomStudentUsername();
 
   // 2. add the username to onlineStudent list
-  onlineStudents.set(usernameToStudentId(username), socket);
+  onlineStudents.set(usernameToStudentId(username), studentCtx.socket);
 
   // 3. send an update to every volunteer
-  const update = latestDashboardUpdate(
-    onlineStudents,
-    onlineVolunteers,
-    volunteerStudentPairs
-  );
-
-  onlineVolunteers.forEach((s) => {
-    s.next({ event: "volunteer.dashboard_update", payload: update });
+  broadcastToVolunteers(onlineVolunteers, {
+    event: "volunteer.dashboard_update",
+    payload: latestDashboardUpdate(
+      onlineStudents,
+      onlineVolunteers,
+      volunteerStudentPairs
+    ),
   });
 
   // 4. create a token containing student's username
@@ -56,54 +59,14 @@ export async function makeRequest(
     return err(new AppError("UNKNOWN", { cause: token.error }));
   }
 
+  studentCtx.setAuth({
+    type: "student",
+    studentId: usernameToStudentId(username),
+    socket: studentCtx.socket,
+  });
+
   return ok({ token: token.value });
 }
-
-const latestDashboardUpdate = (
-  students: OnlineStudents,
-  volunteers: OnlineVolunteers,
-  volunteerStudentPairs: VolunteerStudentPairs
-): DashboardUpdate => {
-  // get all volunteers
-  // get all volunteers not in pairs -> not busy
-  // get all volunteers in pairs -> busy
-
-  // pending requests -> students that are not in pairs
-  const freeVolunteers = Array.from(volunteers.keys())
-    .filter((vId) => !volunteerStudentPairs.has(vId))
-    .map<DashboardUpdate["onlineVolunteers"][number]>((v) => ({
-      volunteerId: v,
-      status: { status: "free" },
-    }));
-  const busyVolunteers = Array.from(volunteerStudentPairs.keys());
-
-  const onlineVolunteers = freeVolunteers;
-  for (const v of busyVolunteers) {
-    const chattingWith = volunteerStudentPairs.get(v);
-    if (!chattingWith) {
-      continue;
-    }
-    onlineVolunteers.push({
-      volunteerId: v,
-      status: {
-        status: "busy",
-        chattingWith,
-      },
-    });
-  }
-
-  const pairedStudents = new Set(volunteerStudentPairs.values());
-  const pendingRequests = Array.from(students.keys())
-    .filter((sId) => !pairedStudents.has(sId))
-    .map<DashboardUpdate["pendingRequests"][number]>((r) => ({
-      studentId: r,
-    }));
-
-  return {
-    onlineVolunteers,
-    pendingRequests,
-  };
-};
 
 const usernameToStudentId = (name: string): StudentId => {
   return `st_${name}`;

@@ -4,7 +4,9 @@ importers:
 
   .:
     specifiers:
+      '@trpc/client': ^10.0.0
       '@trpc/server': ^10.0.0
+      fp-ts: ^2.16.1
       knex: ^2.5.1
       lerna: ^6.0.3
       neverthrow: ^6.0.0
@@ -14,7 +16,9 @@ importers:
       tsx: ^3.12.8
       zod: ^3.19.1
     dependencies:
+      '@trpc/client': 10.0.0_@trpc+server@10.0.0
       '@trpc/server': 10.0.0
+      fp-ts: 2.16.1
       knex: 2.5.1
       neverthrow: 6.0.0
       superjson: 1.13.1
@@ -156,6 +160,7 @@ importers:
       '@trpc/client': ^10.0.0
       '@types/ws': ^8.5.5
       autoprefixer: ^10.4.14
+      fp-ts: ^2.16.1
       postcss: ^8.4.24
       solid-devtools: ^0.27.3
       solid-js: ^1.7.6
@@ -169,6 +174,7 @@ importers:
       '@solidjs/router': 0.8.3_solid-js@1.7.11
       '@trpc/client': 10.0.0
       '@types/ws': 8.5.5
+      fp-ts: 2.16.1
       solid-js: 1.7.11
       ts-pattern: 5.0.5
       ws: 8.13.0
@@ -193,6 +199,7 @@ importers:
       solid-devtools: ^0.27.3
       solid-js: ^1.7.6
       tailwindcss: ^3.3.2
+      ts-pattern: ^5.0.5
       typescript: ^5.1.3
       vite: ^4.3.9
       vite-plugin-solid: ^2.7.0
@@ -205,6 +212,7 @@ importers:
       '@trpc/client': 10.0.0
       '@types/ws': 8.5.5
       solid-js: 1.7.11
+      ts-pattern: 5.0.5
       ws: 8.13.0
       zod: 3.19.1
     devDependencies:
@@ -4564,6 +4572,10 @@ packages:
   /forwarded/0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
+    dev: false
+
+  /fp-ts/2.16.1:
+    resolution: {integrity: sha512-by7U5W8dkIzcvDofUcO42yl9JbnHTEDBrzu3pt5fKT+Z4Oy85I21K80EYJYdjQGC2qum4Vo55Ag57iiIK4FYuA==}
     dev: false
 
   /fraction.js/4.2.0:

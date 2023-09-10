@@ -1,27 +1,62 @@
 import { z } from "zod";
 
 import { contract } from "./endpoints";
-import { ServiceResult } from "./types";
-import type { SubscriptionEventPayload } from "./subscription";
+import type {
+  StudentSubscriptionEventPayload,
+  VolunteerSubscriptionEventPayload,
+} from "./subscription";
+
+import { StudentContract, VolunteerContract, Contract } from "./endpoints";
+import {
+  StudentServiceResult,
+  VolunteerServiceResult,
+  ServiceResult,
+} from "./types";
 
 type IClient = {
-  [k in keyof typeof contract]: (typeof contract)[k] extends {
+  [k in keyof Contract]: Contract[k] extends {
     input: z.ZodSchema;
   }
-    ? (arg: z.infer<(typeof contract)[k]["input"]>) => ServiceResult<k>
+    ? (arg: z.infer<Contract[k]["input"]>) => ServiceResult<k>
     : () => ServiceResult<k>;
 };
 
-type ISubscription = {
-  addListener: <T extends keyof SubscriptionEventPayload>(
+export type IStudentClient = {
+  [k in keyof StudentContract]: StudentContract[k] extends {
+    input: z.ZodSchema;
+  }
+    ? (arg: z.infer<StudentContract[k]["input"]>) => ServiceResult<k>
+    : () => StudentServiceResult<k>;
+};
+
+export type IVolunteerClient = {
+  [k in keyof VolunteerContract]: VolunteerContract[k] extends {
+    input: z.ZodSchema;
+  }
+    ? (arg: z.infer<VolunteerContract[k]["input"]>) => ServiceResult<k>
+    : () => VolunteerServiceResult<k>;
+};
+
+type ISubscription<
+  TEventPayload extends
+    | StudentSubscriptionEventPayload
+    | VolunteerSubscriptionEventPayload,
+> = {
+  addListener: <T extends keyof TEventPayload>(
     event: T,
-    listener: (payload: SubscriptionEventPayload[T]) => void
+    listener: (payload: TEventPayload[T]) => void
   ) => number;
-  removeListener: <T extends keyof SubscriptionEventPayload>(
+  removeListener: <T extends keyof TEventPayload>(
     event: T,
     listenerId: number
   ) => void;
   resetListeners: () => void;
 };
 
-export type IApiClient = {} & IClient & ISubscription;
+type IApiClient<
+  T extends StudentSubscriptionEventPayload | VolunteerSubscriptionEventPayload,
+> = {} & IClient & ISubscription<T>;
+
+export type IStudentApiClient = IApiClient<StudentSubscriptionEventPayload>;
+
+export type IVolunteerApiClient = IApiClient<VolunteerSubscriptionEventPayload>;

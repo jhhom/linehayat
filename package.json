@@ -12,7 +12,9 @@
     "tsx": "^3.12.8"
   },
   "dependencies": {
+    "@trpc/client": "^10.0.0",
     "@trpc/server": "^10.0.0",
+    "fp-ts": "^2.16.1",
     "knex": "^2.5.1",
     "neverthrow": "^6.0.0",
     "superjson": "^1.13.1",

@@ -1,4 +1,4 @@
-const STORAGE_PREFIX = "linehayat_volunteer_";
+const STORAGE_PREFIX = "linehayat_student_";
 const TOKEN_KEY = `${STORAGE_PREFIX}token`;
 
 const storage = {

@@ -10,6 +10,7 @@
     "types": ["vite/client"],
     "noEmit": true,
     "isolatedModules": true,
+    "strict": true,
     "paths": {
         "~/*": [
           "./src/*"
@@ -19,6 +20,9 @@
         ],
         "@api-contract/*": [
             "../shared/api-contract/*"
+        ],
+        "@config/*": [
+            "../shared/config/*"
         ]
       },
   }

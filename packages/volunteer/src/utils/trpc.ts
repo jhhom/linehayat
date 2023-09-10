@@ -5,9 +5,9 @@ import {
   httpBatchLink,
 } from "@trpc/client";
 import { loggerLink } from "@trpc/client/links/loggerLink";
-import type { AppRouter } from "../../../backend/src/router";
+import type { IAppVolunteerRouter } from "@backend/router/router-volunteer";
 
-const trpc = createTRPCProxyClient<AppRouter>({
+const trpc = createTRPCProxyClient<IAppVolunteerRouter>({
   links: [
     loggerLink({
       enabled: (opts) =>
@@ -15,9 +15,9 @@ const trpc = createTRPCProxyClient<AppRouter>({
           typeof window !== "undefined") ||
         (opts.direction === "down" && opts.result instanceof Error),
     }),
-    wsLink<AppRouter>({
+    wsLink<IAppVolunteerRouter>({
       client: createWSClient({
-        url: "ws://localhost:5001/trpc",
+        url: "ws://localhost:4001/trpc",
       }),
     }),
   ],

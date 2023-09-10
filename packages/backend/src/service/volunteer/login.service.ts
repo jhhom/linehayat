@@ -1,12 +1,22 @@
-import { volunteerUsernameToId, type OnlineVolunteers } from "~/core/memory";
+import {
+  volunteerUsernameToId,
+  type OnlineVolunteers,
+  onlineStudents,
+  volunteerStudentPairs,
+} from "@backend/core/memory";
 import type { ServiceResult } from "@api-contract/types";
 import { ok, err } from "neverthrow";
 import { AppError } from "@api-contract/errors";
 import { Kysely } from "kysely";
-import { DB } from "~/core/schema";
-import { bcrypt, jwt } from "~/lib/lib";
+import { DB } from "@backend/core/schema";
+import { jwt } from "@backend/lib/lib";
 import { JwtPayload } from "jsonwebtoken";
-import { VolunteerSocket } from "~/router/context";
+import { VolunteerSocket } from "@backend/router/context";
+import { fromPromise } from "neverthrow";
+import { latestDashboardUpdate } from "@backend/service/common/dashboard";
+import { broadcastToVolunteers } from "@backend/core/memory";
+
+import type { Context } from "@backend/router/context";
 
 export async function login(
   {
@@ -22,18 +32,28 @@ export async function login(
     username: string;
     password: string;
     socket: VolunteerSocket;
+  },
+  volunteerCtx: {
+    socket: VolunteerSocket;
+    setAuth: (args: Parameters<Context["setAuth"]>[0]) => void;
   }
 ): ServiceResult<"volunteer/login"> {
-  const passwordResult = await db
-    .selectFrom("volunteers")
-    .select(["password"])
-    .where("username", "=", input.username)
-    .executeTakeFirst();
-  if (passwordResult === undefined) {
+  const user = await fromPromise(
+    db
+      .selectFrom("volunteers")
+      .select(["password", "username", "email"])
+      .where("username", "=", input.username)
+      .executeTakeFirst(),
+    (e) => new AppError("DATABASE", { cause: e })
+  );
+  if (user.isErr()) {
+    return err(user.error);
+  }
+  if (user.value === undefined) {
     return err(new AppError("RESOURCE_NOT_FOUND", { resource: "volunteer" }));
   }
 
-  if (passwordResult.password !== input.password) {
+  if (user.value.password !== input.password) {
     return err(new AppError("AUTH.INCORRECT_PASSWORD", undefined));
   }
 
@@ -47,5 +67,27 @@ export async function login(
 
   onlineVolunteers.set(volunteerUsernameToId(input.username), input.socket);
 
-  return ok({ token: token.value });
+  const dashboardUpdate = latestDashboardUpdate(
+    onlineStudents,
+    onlineVolunteers,
+    volunteerStudentPairs
+  );
+
+  broadcastToVolunteers(onlineVolunteers, {
+    event: "volunteer.dashboard_update",
+    payload: dashboardUpdate,
+  });
+
+  volunteerCtx.setAuth({
+    type: "volunteer",
+    username: user.value.username,
+    socket: volunteerCtx.socket,
+  });
+
+  return ok({
+    token: token.value,
+    username: user.value.username,
+    email: user.value.email,
+    latestDashboard: dashboardUpdate,
+  });
 }

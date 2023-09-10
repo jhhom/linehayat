@@ -1,11 +1,13 @@
+import { DashboardUpdate } from "@api-contract/subscription";
+import { StudentId } from "@api-contract/types";
+import { useNavigate } from "@solidjs/router";
 import { For } from "solid-js";
+import { client } from "~/external/api-client/client";
 import SidebarLayout from "~/layouts/Sidebar.layout";
+import { useAppStore } from "~/stores/store";
 
 function VolunteerTable(props: {
-  volunteers: {
-    username: string;
-    status: string;
-  }[];
+  volunteers: DashboardUpdate["onlineVolunteers"];
 }) {
   return (
     <div>
@@ -18,10 +20,10 @@ function VolunteerTable(props: {
         <For each={props.volunteers}>
           {(v, i) => (
             <div class="flex cursor-pointer border-b border-gray-300 text-sm hover:bg-gray-50">
-              <p class="flex-none basis-1/2 break-all border-r border-gray-300 px-2 py-2">
-                {v.username}
+              <p class="flex-none basis-1/2 border-r border-gray-300 px-2 py-2">
+                {v.volunteerId}
               </p>
-              <p class="flex-none basis-1/2 px-2 py-2">{v.status}</p>
+              <p class="flex-none basis-1/2 px-2 py-2">{v.status.status}</p>
             </div>
           )}
         </For>
@@ -32,9 +34,10 @@ function VolunteerTable(props: {
 
 function PendingRequestTable(props: {
   pendingRequests: {
-    username: string;
-    waitingTime: string;
+    studentId: StudentId;
   }[];
+  canAcceptRequest: boolean;
+  onAcceptRequest: (studentId: StudentId) => void;
 }) {
   return (
     <div>
@@ -50,13 +53,17 @@ function PendingRequestTable(props: {
           {(r, i) => (
             <div class="flex cursor-pointer border-b border-gray-300 text-sm hover:bg-gray-50">
               <p class="flex flex-none basis-2/5 items-center overflow-x-hidden overflow-ellipsis break-all border-r border-gray-300 px-2 py-1">
-                {r.username}
+                {r.studentId}
               </p>
               <p class="flex flex-none basis-2/5 items-center border-r border-gray-300 px-2 py-1">
-                {r.waitingTime}
+                10 mins
               </p>
               <div class="flex-0 basis-1/5 px-2 py-1">
-                <button class="rounded-md bg-green-600 px-2 py-1 text-white">
+                <button
+                  disabled={!props.canAcceptRequest}
+                  onClick={() => props.onAcceptRequest(r.studentId)}
+                  class="rounded-md bg-green-600 px-2 py-1 text-white"
+                >
                   Accept
                 </button>
               </div>
@@ -69,40 +76,44 @@ function PendingRequestTable(props: {
 }
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
+  const store = useAppStore((s) => s);
+
+  if (store.profile.profile.status === "logged-out") {
+    throw new Error("User is not authenticated");
+  }
+
   return (
-    <SidebarLayout>
+    <SidebarLayout
+      username={store.profile.profile.username}
+      email={store.profile.profile.email}
+      status={store.profile.profile.status}
+    >
       <div class="flex h-full w-full">
         <div class="basis-1/2 border-r border-r-gray-300 pt-2">
           <VolunteerTable
-            volunteers={[
-              {
-                username: "James Madison",
-                status: "Online",
-              },
-              {
-                username: "John Smith",
-                status: "Online",
-              },
-              {
-                username: "Veniron Max",
-                status: "Online",
-              },
-            ]}
+            volunteers={store.dashboard.dashboard.onlineVolunteers}
           />
         </div>
 
         <div class="basis-1/2 pt-2">
           <PendingRequestTable
-            pendingRequests={[
-              {
-                username: "TopMoose",
-                waitingTime: "10 mins",
-              },
-              {
-                username: "TopMooseTopMooseTopMoose TopMoose",
-                waitingTime: "10 mins",
-              },
-            ]}
+            pendingRequests={store.dashboard.dashboard.pendingRequests}
+            canAcceptRequest={store.profile.profile.status === "idle"}
+            onAcceptRequest={async (studentId) => {
+              if (store.profile.profile.status !== "idle") {
+                alert("Cannot accept request, user is busy");
+                return;
+              }
+              const r = await client["volunteer/accept_request"]({ studentId });
+              if (r.isErr()) {
+                alert("Failed to accept request: " + r.error);
+                return;
+              }
+
+              store.setProfile("profile", { status: "busy-chatting" });
+              navigate("/chat");
+            }}
           />
         </div>
       </div>

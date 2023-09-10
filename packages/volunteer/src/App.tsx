@@ -5,6 +5,8 @@ import trpc from "./utils/trpc";
 import HomePage from "./pages/Home/Home.page";
 import ChatPage from "./pages/Chat.page";
 
+import { AppProvider } from "~/stores/store";
+
 const App: Component = () => {
   return (
     <Routes>
@@ -17,7 +19,9 @@ const App: Component = () => {
 const AppWithRouter = () => {
   return (
     <Router>
-      <App />
+      <AppProvider>
+        <App />
+      </AppProvider>
     </Router>
   );
 };
