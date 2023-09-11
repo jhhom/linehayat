@@ -48,6 +48,8 @@ export class Client implements IVolunteerClient {
     });
     this.#socketListeners = {
       "volunteer.dashboard_update": new Map(),
+      "volunteer.student_disconnected": new Map(),
+      "volunteer.message": new Map(),
     };
   }
 
@@ -102,6 +104,15 @@ export class Client implements IVolunteerClient {
   ) {
     const r = await this.#fromApiPromise(
       this.#trpc["volunteer/accept_request"].mutate(arg),
+    );
+    return r;
+  }
+
+  async ["volunteer/send_message"](
+    arg: ServiceInput<"volunteer/send_message">,
+  ) {
+    const r = await this.#fromApiPromise(
+      this.#trpc["volunteer/send_message"].mutate(arg),
     );
     return r;
   }

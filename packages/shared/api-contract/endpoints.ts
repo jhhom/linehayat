@@ -23,12 +23,28 @@ const volunteerContract = {
       message: z.string(),
     }),
   },
+  "volunteer/send_message": {
+    input: z.object({
+      message: z.string(),
+    }),
+    output: z.object({
+      message: z.string(),
+    }),
+  },
 };
 
 const studentContract = {
   "student/make_request": {
     output: z.object({
       token: z.string(),
+    }),
+  },
+  "student/send_message": {
+    input: z.object({
+      message: z.string(),
+    }),
+    output: z.object({
+      message: z.string(),
     }),
   },
 };

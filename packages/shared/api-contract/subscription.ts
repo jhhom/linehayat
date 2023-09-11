@@ -11,6 +11,10 @@ export type StudentSubscriptionMessage = {
 
 export type StudentSubscriptionEventPayload = {
   "student.request_accepted": {};
+  "student.volunteer_disconnected": {};
+  "student.message": {
+    message: string;
+  };
 };
 
 export type VolunteerSubscriptionMessage = {
@@ -22,6 +26,10 @@ export type VolunteerSubscriptionMessage = {
 
 export type VolunteerSubscriptionEventPayload = {
   "volunteer.dashboard_update": DashboardUpdate;
+  "volunteer.student_disconnected": {};
+  "volunteer.message": {
+    message: string;
+  };
 };
 
 export const zDashboardUpdateSchema = z.object({

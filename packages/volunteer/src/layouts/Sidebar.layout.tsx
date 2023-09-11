@@ -1,27 +1,39 @@
-import { A } from "@solidjs/router";
+import { A, Outlet, useLocation } from "@solidjs/router";
 import { ComponentProps, ParentProps } from "solid-js";
 import { Profile } from "~/stores/profile.store";
+import { useAppStore } from "~/stores/stores";
+import { match } from "ts-pattern";
 
-type SidebarProfile = Exclude<Profile["profile"], { status: "logged-out" }>;
+export default function SidebarLayout() {
+  const userProfile = useAppStore((s) => s.profile.profile);
 
-export default function SidebarLayout(props: ParentProps<SidebarProfile>) {
   return (
-    <div>
-      <div class="flex h-screen">
-        <div class="flex max-w-[260px] basis-1/4 flex-col border border-r px-2">
-          <Sidebar
-            status={props.status}
-            email={props.email}
-            username={props.username}
-          />
-        </div>
-        <div class="flex-grow basis-3/4">{props.children}</div>
-      </div>
-    </div>
+    <>
+      {match(userProfile)
+        .with({ status: "logged-out" }, () => <Outlet />)
+        .otherwise((userProfile) => (
+          <div>
+            <div class="flex h-screen">
+              <div class="flex max-w-[260px] basis-1/4 flex-col border border-r px-2">
+                <Sidebar
+                  status={userProfile.status}
+                  email={userProfile.email}
+                  username={userProfile.username}
+                />
+              </div>
+              <div class="flex-grow basis-3/4">
+                <Outlet />
+              </div>
+            </div>
+          </div>
+        ))}
+    </>
   );
 }
 
-function Sidebar(props: SidebarProfile) {
+function Sidebar(props: Exclude<Profile["profile"], { status: "logged-out" }>) {
+  const location = useLocation();
+
   return (
     <div class="flex h-full w-full flex-col">
       <div>
@@ -44,8 +56,12 @@ function Sidebar(props: SidebarProfile) {
       </div>
 
       <div class="flex-grow space-y-2">
-        <SidebarLink href="/dashboard">Dashboard</SidebarLink>
-        <SidebarLink href="/chat">Chat</SidebarLink>
+        <SidebarLink active={location.pathname === "/"} href="/">
+          Dashboard
+        </SidebarLink>
+        <SidebarLink active={location.pathname === "/chat"} href="/chat">
+          Chat
+        </SidebarLink>
         <a href="#" class="block rounded-md py-2 pl-2 hover:bg-gray-100">
           Setting
         </a>
@@ -61,13 +77,16 @@ function Sidebar(props: SidebarProfile) {
 function SidebarLink(props: {
   href: ComponentProps<typeof A>["href"];
   children: ComponentProps<typeof A>["children"];
+  active: boolean;
 }) {
   return (
     <A
       href={props.href}
-      class="block rounded-md py-2  pl-2 "
-      activeClass="text-green-700 bg-green-100/70"
-      inactiveClass="hover:bg-gray-100"
+      class="block rounded-md py-2 pl-2 "
+      classList={{
+        "text-green-700 bg-green-100/70": props.active,
+        "hover:bg-gray-100": !props.active,
+      }}
     >
       {props.children}
     </A>

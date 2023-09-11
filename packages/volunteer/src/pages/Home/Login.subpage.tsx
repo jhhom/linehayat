@@ -4,16 +4,60 @@ import { createForm, zodForm } from "@modular-forms/solid";
 import storage from "~/external/browser/local-storage";
 
 import { client } from "~/external/api-client/client";
-import { useAppStore } from "~/stores/store";
+import { useAppStore } from "~/stores/stores";
 import { useNavigate } from "@solidjs/router";
-import { onCleanup } from "solid-js";
+import { createEffect, onCleanup, onMount } from "solid-js";
 
 const formSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
   password: z.string().min(1, { message: "Password is required" }),
 });
 
-type FormSchema = z.infer<typeof formSchema>;
+const useAutoLogin = (v: { username: string; password: string }) => {
+  const store = useAppStore((s) => s);
+
+  onMount(async () => {
+    const r = await client["volunteer/login"]({
+      username: v.username,
+      password: v.password,
+    });
+    if (r.isErr()) {
+      alert("Failed to login: " + r.error);
+      return;
+    }
+    storage.setToken(r.value.token);
+    store.setProfile("profile", {
+      status: "idle",
+      username: r.value.username,
+      email: r.value.email,
+    });
+    store.setDashboard("dashboard", r.value.latestDashboard);
+    const listenerId = client.addListener("volunteer.dashboard_update", (e) => {
+      store.setDashboard("dashboard", e);
+    });
+    const listenerId2 = client.addListener(
+      "volunteer.student_disconnected",
+      (e) => {
+        alert("Student has disconnected");
+        store.setProfile("profile", { status: "idle" });
+      },
+    );
+    const listenerId3 = client.addListener("volunteer.message", (e) => {
+      store.setMessages("messages", [
+        ...store.messages.messages,
+        {
+          content: e.message,
+          userIsAuthor: false,
+        },
+      ]);
+    });
+    onCleanup(() => {
+      client.removeListener("volunteer.dashboard_update", listenerId);
+      client.removeListener("volunteer.student_disconnected", listenerId2);
+      client.removeListener("volunteer.message", listenerId3);
+    });
+  });
+};
 
 export default function LoginPage() {
   const [loginForm, { Form, Field }] = createForm<z.input<typeof formSchema>>({
@@ -21,7 +65,9 @@ export default function LoginPage() {
   });
 
   const store = useAppStore((s) => s);
-  const navigate = useNavigate();
+
+  // temporary auto-login to ease debugging
+  useAutoLogin({ username: "james", password: "james123" });
 
   return (
     <div class="flex h-screen w-screen items-center justify-center">
@@ -52,8 +98,19 @@ export default function LoginPage() {
                   store.setDashboard("dashboard", e);
                 },
               );
+              const listenerId2 = client.addListener(
+                "volunteer.student_disconnected",
+                (e) => {
+                  alert("Student has disconnected");
+                  store.setProfile("profile", { status: "idle" });
+                },
+              );
               onCleanup(() => {
                 client.removeListener("volunteer.dashboard_update", listenerId);
+                client.removeListener(
+                  "volunteer.student_disconnected",
+                  listenerId2,
+                );
               });
             }}
             class="px-4"

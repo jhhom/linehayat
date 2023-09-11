@@ -18,6 +18,7 @@ import { contract } from "@api-contract/endpoints";
 
 import * as volunteerService from "@backend/service/volunteer";
 import { latestDashboardUpdate } from "@backend/service/common/dashboard";
+import { cleanupSocket } from "@backend/service/common/socket";
 
 export const makeVolunteerRouter = (
   {
@@ -57,29 +58,10 @@ export const makeVolunteerRouter = (
           });
 
           const cleanup = async () => {
-            if (ctx.ctx.auth !== null) {
-              if (
-                ctx.ctx.auth.type === "volunteer" &&
-                ctx.ctx.auth.username !== null
-              ) {
-                const removal = onlineVolunteers.delete(
-                  volunteerUsernameToId(ctx.ctx.auth.username)
-                );
-              } else if (
-                ctx.ctx.auth.type === "student" &&
-                ctx.ctx.auth.studentId !== null
-              ) {
-                onlineStudents.delete(ctx.ctx.auth.studentId);
-              }
-            }
-            ctx.ctx.setAuth(null);
-            broadcastToVolunteers(onlineVolunteers, {
-              event: "volunteer.dashboard_update",
-              payload: latestDashboardUpdate(
-                onlineStudents,
-                onlineVolunteers,
-                volunteerStudentPairs
-              ),
+            cleanupSocket(ctx.ctx, {
+              onlineStudents,
+              onlineVolunteers,
+              volunteerStudentPairs,
             });
           };
 
@@ -139,6 +121,31 @@ export const makeVolunteerRouter = (
           socket: ctx.auth.socket,
           username: input.username,
         });
+
+        return result.value;
+      }),
+    ["volunteer/send_message"]: procedure
+      .use(guardIsAuthedAsVolunteer)
+      .input(contract["volunteer/send_message"].input)
+      .output(contract["volunteer/send_message"].output)
+      .mutation(async ({ input, ctx }) => {
+        const result = await volunteerService.sendMessage(
+          {
+            db,
+            onlineStudents,
+            onlineVolunteers,
+            volunteerStudentPairs,
+          },
+          {
+            volunteerId: volunteerUsernameToId(ctx.auth.username),
+          },
+          {
+            message: input.message,
+          }
+        );
+        if (result.isErr()) {
+          throw result.error;
+        }
 
         return result.value;
       }),

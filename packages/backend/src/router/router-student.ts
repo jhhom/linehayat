@@ -17,17 +17,21 @@ import { broadcastToVolunteers } from "@backend/core/memory";
 import { latestDashboardUpdate } from "@backend/service/common/dashboard";
 
 import { contract } from "@api-contract/endpoints";
-import { makeRequest } from "@backend/service/student/make-request.service";
+import { cleanupSocket } from "@backend/service/common/socket";
+
+import * as studentService from "@backend/service/student";
 
 export const makeStudentRouter = (
   {
     router,
     procedure,
     guardHasStudentSocket,
+    guardIsAuthedAsStudent,
   }: {
     router: AppTRPC["router"];
     procedure: AppTRPC["procedure"];
     guardHasStudentSocket: AppTRPCGuards["guardHasStudentSocket"];
+    guardIsAuthedAsStudent: AppTRPCGuards["guardIsAuthedAsStudent"];
   },
   {
     db,
@@ -55,32 +59,10 @@ export const makeStudentRouter = (
           });
 
           const cleanup = async () => {
-            console.log("CLEANING UP!!!");
-            if (ctx.ctx.auth !== null) {
-              if (
-                ctx.ctx.auth.type === "volunteer" &&
-                ctx.ctx.auth.username !== null
-              ) {
-                const removal = onlineVolunteers.delete(
-                  volunteerUsernameToId(ctx.ctx.auth.username)
-                );
-              } else if (
-                ctx.ctx.auth.type === "student" &&
-                ctx.ctx.auth.studentId !== null
-              ) {
-                console.log("IS CLEAN STUDENT", ctx.ctx.auth.studentId);
-                onlineStudents.delete(ctx.ctx.auth.studentId);
-              }
-            }
-            ctx.ctx.setAuth(null);
-            console.log("BROADCAST!!");
-            broadcastToVolunteers(onlineVolunteers, {
-              event: "volunteer.dashboard_update",
-              payload: latestDashboardUpdate(
-                onlineStudents,
-                onlineVolunteers,
-                volunteerStudentPairs
-              ),
+            cleanupSocket(ctx.ctx, {
+              onlineStudents,
+              onlineVolunteers,
+              volunteerStudentPairs,
             });
           };
 
@@ -94,7 +76,7 @@ export const makeStudentRouter = (
       .use(guardHasStudentSocket)
       .output(contract["student/make_request"].output)
       .mutation(async ({ input, ctx }) => {
-        const result = await makeRequest(
+        const result = await studentService.makeRequest(
           {
             db,
             onlineStudents,
@@ -107,6 +89,32 @@ export const makeStudentRouter = (
             setAuth: (args) => {
               ctx.ctx.setAuth(args);
             },
+          }
+        );
+
+        if (result.isErr()) {
+          throw result.error;
+        }
+
+        return result.value;
+      }),
+    ["student/send_message"]: procedure
+      .use(guardIsAuthedAsStudent)
+      .input(contract["student/send_message"].input)
+      .output(contract["student/send_message"].output)
+      .mutation(async ({ input, ctx }) => {
+        const result = await studentService.sendMessage(
+          {
+            db,
+            onlineStudents,
+            onlineVolunteers,
+            volunteerStudentPairs,
+          },
+          {
+            studentId: ctx.auth.studentId,
+          },
+          {
+            message: input.message,
           }
         );
 

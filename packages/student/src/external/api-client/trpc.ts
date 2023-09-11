@@ -14,7 +14,7 @@ import type { IAppRouter } from "@backend/router/router";
 import { config } from "@config/config";
 
 import { RouterError } from "@backend/router/error-formatter";
-import { ServiceSyncResult } from "@api-contract/types";
+import { ServiceSyncResult, ServiceInput } from "@api-contract/types";
 
 export class Client implements IStudentClient {
   #trpc: ReturnType<typeof createTRPCProxyClient<IAppStudentRouter>>;
@@ -45,6 +45,8 @@ export class Client implements IStudentClient {
     });
     this.#socketListeners = {
       "student.request_accepted": new Map(),
+      "student.volunteer_disconnected": new Map(),
+      "student.message": new Map(),
     };
   }
 
@@ -92,6 +94,13 @@ export class Client implements IStudentClient {
       (e) =>
         new AppError(e.data.details.type, e.data.details.info) as AppErrorUnion,
     );
+  }
+
+  async ["student/send_message"](arg: ServiceInput<"student/send_message">) {
+    const r = await this.#fromApiPromise(
+      this.#trpc["student/send_message"].mutate(arg),
+    );
+    return r;
   }
 
   async ["student/make_request"]() {

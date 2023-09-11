@@ -1,5 +1,28 @@
-import { For, onMount } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { For, Show, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
+import { useAppStore } from "~/stores/stores";
+import { client } from "~/external/api-client/trpc";
+
+export default function Chat() {
+  const navigate = useNavigate();
+  const store = useAppStore((s) => s);
+
+  if (store.profile.status !== "chatting") {
+    throw new Error("User is not chatting");
+  }
+
+  return (
+    <div class="h-full w-full">
+      <div class="flex h-full w-full items-center justify-center">
+        <ChatConversation
+          messages={store.messages.messages}
+          onHangup={() => navigate("/dashboard")}
+        />
+      </div>
+    </div>
+  );
+}
 
 const initialMessages: ConversationProps["messages"] = [
   {
@@ -32,18 +55,39 @@ const initialMessages: ConversationProps["messages"] = [
   },
 ];
 
-export default function Chat(props: { onHangup: () => void }) {
-  const [messages, setMessages] =
-    createStore<ConversationProps["messages"]>(initialMessages);
-
+function ChatConversation(props: {
+  messages: ConversationProps["messages"];
+  onHangup: () => void;
+}) {
   let textRef!: HTMLInputElement;
   let conversationContainerRef!: HTMLDivElement;
 
-  const submitMessage = () => {
+  const store = useAppStore((s) => ({
+    setMessages: s.setMessages,
+    messages: s.messages,
+  }));
+
+  const submitMessage = async () => {
     if (textRef.value === "") {
       return;
     }
-    setMessages([...messages, { content: textRef.value, userIsAuthor: false }]);
+    const r = await client["student/send_message"]({
+      message: textRef.value,
+    });
+
+    if (r.isErr()) {
+      alert("Failed to send message: " + r.error);
+      return;
+    }
+
+    store.setMessages("messages", [
+      ...store.messages.messages,
+      {
+        content: textRef.value,
+        userIsAuthor: true,
+      },
+    ]);
+
     textRef.value = "";
     conversationContainerRef.scrollTo(0, conversationContainerRef.scrollHeight);
   };
@@ -66,7 +110,7 @@ export default function Chat(props: { onHangup: () => void }) {
           Hang up
         </button>
       </div>
-      <Conversation ref={conversationContainerRef} messages={messages} />
+      <Conversation ref={conversationContainerRef} messages={props.messages} />
       <div class="flex">
         <input
           ref={textRef}

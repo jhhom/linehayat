@@ -4,7 +4,7 @@ import { Route, Routes, Router } from "@solidjs/router";
 import { AppProvider } from "~/stores/stores";
 
 import HomePage from "./pages/Home.page";
-import ChatPage from "./pages/Chat.page";
+import ChatPage from "./pages/Chat.page/Chat.page";
 
 const App: Component = () => {
   return (

@@ -40,6 +40,7 @@ function initRouter(
       router,
       procedure,
       guardHasStudentSocket: guards.guardHasStudentSocket,
+      guardIsAuthedAsStudent: guards.guardIsAuthedAsStudent,
     },
     {
       db,

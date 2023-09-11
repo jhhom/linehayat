@@ -10,6 +10,7 @@ import { Router } from "@solidjs/router";
 import { client } from "~/external/api-client/trpc";
 import storage from "~/external/browser/local-storage";
 import { useAppStore } from "~/stores/stores";
+import Chat from "~/pages/Chat.page/Chat";
 
 function Content1() {
   return (
@@ -168,15 +169,15 @@ function ChatPage() {
           </div>
 
           <div class="mt-4 h-[640px] w-full">
-            <div class="h-full w-full rounded-lg bg-blue-100">
+            <div class="h-full w-full">
               {match(store.profile.status)
                 .with("chatting", () => (
                   <div>
-                    <p>You are chatting</p>
+                    <Chat />
                   </div>
                 ))
                 .with("idle", () => (
-                  <>
+                  <div class="h-full w-full rounded-lg bg-blue-100">
                     <div class="h-[85%] w-full">
                       {match(card())
                         .with(0, () => <Content1 />)
@@ -221,10 +222,37 @@ function ChatPage() {
                                 store.setProfile({ status: "chatting" });
                               },
                             );
+                            const listenerId2 = client.addListener(
+                              "student.volunteer_disconnected",
+                              (e) => {
+                                alert("Volunteer has disconnected");
+                                store.setProfile({ status: "idle" });
+                              },
+                            );
+                            const listenerId3 = client.addListener(
+                              "student.message",
+                              (e) => {
+                                store.setMessages("messages", [
+                                  ...store.messages.messages,
+                                  {
+                                    content: e.message,
+                                    userIsAuthor: false,
+                                  },
+                                ]);
+                              },
+                            );
                             onCleanup(() => {
                               client.removeListener(
                                 "student.request_accepted",
                                 listenerId,
+                              );
+                              client.removeListener(
+                                "student.volunteer_disconnected",
+                                listenerId2,
+                              );
+                              client.removeListener(
+                                "student.message",
+                                listenerId3,
                               );
                             });
                           }
@@ -244,10 +272,10 @@ function ChatPage() {
                         </Show>
                       </button>
                     </div>
-                  </>
+                  </div>
                 ))
                 .with("waiting", () => (
-                  <div>
+                  <div class="h-full w-full rounded-lg bg-blue-100">
                     <p>Please wait</p>
                   </div>
                 ))

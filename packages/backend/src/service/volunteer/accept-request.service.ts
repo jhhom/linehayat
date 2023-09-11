@@ -11,10 +11,6 @@ import { ok, err } from "neverthrow";
 import { AppError } from "@api-contract/errors";
 import { Kysely } from "kysely";
 import { DB } from "@backend/core/schema";
-import { jwt } from "@backend/lib/lib";
-import { JwtPayload } from "jsonwebtoken";
-import { VolunteerSocket } from "@backend/router/context";
-import { fromPromise } from "neverthrow";
 import { latestDashboardUpdate } from "@backend/service/common/dashboard";
 import { broadcastToVolunteers } from "@backend/core/memory";
 
