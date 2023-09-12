@@ -21,7 +21,13 @@ export default function ChatPage() {
         >
           <Chat
             messages={store.messages.messages}
-            onHangup={() => navigate("/dashboard")}
+            onHangup={async () => {
+              await client["volunteer/hang_up"]();
+
+              store.setProfile("profile", { status: "idle" });
+
+              navigate("/");
+            }}
           />
         </Show>
       </div>

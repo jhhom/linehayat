@@ -42,7 +42,6 @@ export function cleanupSocket(
         volunteerStudentPairs.delete(volunteerUsernameToId(ctx.auth.username));
       }
     } else if (ctx.auth.type === "student" && ctx.auth.studentId !== null) {
-      console.log("FOUND STUDENT DISCONNECT", ctx.auth.studentId);
       const studentId = ctx.auth.studentId;
       onlineStudents.delete(studentId);
 

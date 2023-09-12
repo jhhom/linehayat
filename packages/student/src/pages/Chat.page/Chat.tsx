@@ -17,7 +17,13 @@ export default function Chat() {
       <div class="flex h-full w-full items-center justify-center">
         <ChatConversation
           messages={store.messages.messages}
-          onHangup={() => navigate("/dashboard")}
+          onHangup={async () => {
+            await client["student/hang_up"]();
+
+            store.setProfile("status", "idle");
+
+            navigate("/");
+          }}
         />
       </div>
     </div>

@@ -61,7 +61,6 @@ export async function login(
     expiresIn: "10000h",
   });
   if (token.isErr()) {
-    console.log("ERROR", token.error);
     return err(new AppError("UNKNOWN", { cause: token.error }));
   }
 

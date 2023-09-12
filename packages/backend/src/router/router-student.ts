@@ -124,6 +124,28 @@ export const makeStudentRouter = (
 
         return result.value;
       }),
+    ["student/hang_up"]: procedure
+      .use(guardIsAuthedAsStudent)
+      .output(contract["student/hang_up"].output)
+      .mutation(async ({ input, ctx }) => {
+        const result = await studentService.hangUp(
+          {
+            db,
+            onlineStudents,
+            onlineVolunteers,
+            volunteerStudentPairs,
+          },
+          {
+            studentId: ctx.auth.studentId,
+          }
+        );
+
+        if (result.isErr()) {
+          throw result.error;
+        }
+
+        return result.value;
+      }),
   });
 };
 

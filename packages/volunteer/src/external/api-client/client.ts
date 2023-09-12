@@ -50,6 +50,7 @@ export class Client implements IVolunteerClient {
       "volunteer.dashboard_update": new Map(),
       "volunteer.student_disconnected": new Map(),
       "volunteer.message": new Map(),
+      "volunteer.hanged_up": new Map(),
     };
   }
 
@@ -113,6 +114,13 @@ export class Client implements IVolunteerClient {
   ) {
     const r = await this.#fromApiPromise(
       this.#trpc["volunteer/send_message"].mutate(arg),
+    );
+    return r;
+  }
+
+  async ["volunteer/hang_up"]() {
+    const r = await this.#fromApiPromise(
+      this.#trpc["volunteer/hang_up"].mutate(),
     );
     return r;
   }

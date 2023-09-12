@@ -149,6 +149,28 @@ export const makeVolunteerRouter = (
 
         return result.value;
       }),
+    ["volunteer/hang_up"]: procedure
+      .use(guardIsAuthedAsVolunteer)
+      .output(contract["volunteer/hang_up"].output)
+      .mutation(async ({ input, ctx }) => {
+        const result = await volunteerService.hangUp(
+          {
+            db,
+            onlineStudents,
+            onlineVolunteers,
+            volunteerStudentPairs,
+          },
+          {
+            volunteerId: volunteerUsernameToId(ctx.auth.username),
+          }
+        );
+
+        if (result.isErr()) {
+          throw result.error;
+        }
+
+        return result.value;
+      }),
   });
 };
 

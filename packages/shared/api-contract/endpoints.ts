@@ -31,6 +31,11 @@ const volunteerContract = {
       message: z.string(),
     }),
   },
+  "volunteer/hang_up": {
+    output: z.object({
+      message: z.string(),
+    }),
+  },
 };
 
 const studentContract = {
@@ -43,6 +48,11 @@ const studentContract = {
     input: z.object({
       message: z.string(),
     }),
+    output: z.object({
+      message: z.string(),
+    }),
+  },
+  "student/hang_up": {
     output: z.object({
       message: z.string(),
     }),

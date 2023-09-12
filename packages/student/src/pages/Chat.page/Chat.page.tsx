@@ -241,6 +241,13 @@ function ChatPage() {
                                 ]);
                               },
                             );
+                            const listenerId4 = client.addListener(
+                              "student.hanged_up",
+                              (e) => {
+                                alert("volunteer has hanged-up");
+                                store.setProfile({ status: "idle" });
+                              },
+                            );
                             onCleanup(() => {
                               client.removeListener(
                                 "student.request_accepted",
@@ -254,9 +261,15 @@ function ChatPage() {
                                 "student.message",
                                 listenerId3,
                               );
+                              client.removeListener(
+                                "student.hanged_up",
+                                listenerId4,
+                              );
                             });
+                            setCard(0);
+                          } else {
+                            setCard((c) => c + 1);
                           }
-                          setCard((c) => c + 1);
                         }}
                         class="rounded-full px-6 py-2"
                         classList={{

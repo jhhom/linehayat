@@ -51,10 +51,15 @@ const useAutoLogin = (v: { username: string; password: string }) => {
         },
       ]);
     });
+    const listenerId4 = client.addListener("volunteer.hanged_up", (e) => {
+      alert("student has hanged-up");
+      store.setProfile("profile", { status: "idle" });
+    });
     onCleanup(() => {
       client.removeListener("volunteer.dashboard_update", listenerId);
       client.removeListener("volunteer.student_disconnected", listenerId2);
       client.removeListener("volunteer.message", listenerId3);
+      client.removeListener("volunteer.hanged_up", listenerId4);
     });
   });
 };
@@ -105,12 +110,33 @@ export default function LoginPage() {
                   store.setProfile("profile", { status: "idle" });
                 },
               );
+              const listenerId3 = client.addListener(
+                "volunteer.message",
+                (e) => {
+                  store.setMessages("messages", [
+                    ...store.messages.messages,
+                    {
+                      content: e.message,
+                      userIsAuthor: false,
+                    },
+                  ]);
+                },
+              );
+              const listenerId4 = client.addListener(
+                "volunteer.hanged_up",
+                (e) => {
+                  alert("student has hanged-up");
+                  store.setProfile("profile", { status: "idle" });
+                },
+              );
               onCleanup(() => {
                 client.removeListener("volunteer.dashboard_update", listenerId);
                 client.removeListener(
                   "volunteer.student_disconnected",
                   listenerId2,
                 );
+                client.removeListener("volunteer.message", listenerId3);
+                client.removeListener("volunteer.hanged_up", listenerId4);
               });
             }}
             class="px-4"
