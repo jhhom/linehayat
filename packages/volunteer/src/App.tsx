@@ -8,7 +8,7 @@ import ChatPage from "./pages/Chat.page/Chat.page";
 import { match } from "ts-pattern";
 
 import { AppProvider, useAppStore } from "~/stores/stores";
-import LoginPage from "~/pages/Home/Login.subpage";
+import LoginPage from "~/pages/Home/Login.subpage/Login.subpage";
 import SidebarLayout from "~/layouts/Sidebar.layout";
 import DashboardPage from "~/pages/Home/Dashboard.subpage";
 

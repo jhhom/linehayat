@@ -2,7 +2,7 @@ import { ParentComponent, createContext, useContext } from "solid-js";
 import { StudentId } from "@api-contract/types";
 import { createStore } from "solid-js/store";
 
-type Student = {
+export type Student = {
   status: "typing" | "idle";
 };
 

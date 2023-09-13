@@ -1,33 +1,29 @@
 import { useNavigate } from "@solidjs/router";
 import { For, Show, onMount, createEffect } from "solid-js";
-import { createStore } from "solid-js/store";
-import { useAppStore } from "~/stores/stores";
-import { client } from "~/external/api-client/trpc";
-import { useIsTyping } from "~/pages/Chat.page/use-is-typing.hook";
 
-export default function Chat() {
-  const navigate = useNavigate();
-  const store = useAppStore((s) => s);
+import { type Messages } from "~/stores/messages.store";
+import { type Volunteer } from "~/stores/volunteer.store";
 
-  if (store.profile.status !== "chatting") {
-    throw new Error("User is not chatting");
-  }
+import { useIsTyping } from "~/pages/Chat.page/components/Chat/use-is-typing.hook";
 
+export default function Chat(props: {
+  volunteerStatus: Volunteer["status"];
+  messages: Messages["messages"];
+  onTyping: (isTyping: boolean) => void;
+  onHangup: () => {};
+  onSubmitMessage: (message: string) => void;
+}) {
   return (
     <div class="h-full w-full">
       <div class="flex h-full w-full items-center justify-center">
-        <Show when={store.volunteer.status === "typing"}>
+        <Show when={props.volunteerStatus === "typing"}>
           <p>Volunteer is typing...</p>
         </Show>
         <ChatConversation
-          messages={store.messages.messages}
-          onHangup={async () => {
-            await client["student/hang_up"]();
-
-            store.setProfile("status", "idle");
-
-            navigate("/");
-          }}
+          messages={props.messages}
+          onTyping={props.onTyping}
+          onHangup={props.onHangup}
+          onSubmitMessage={props.onSubmitMessage}
         />
       </div>
     </div>
@@ -37,37 +33,19 @@ export default function Chat() {
 function ChatConversation(props: {
   messages: ConversationProps["messages"];
   onHangup: () => void;
+  onSubmitMessage: (message: string) => void;
+  onTyping: (isTyping: boolean) => void;
 }) {
   let textRef!: HTMLInputElement;
   let conversationContainerRef!: HTMLDivElement;
 
   const { register, isTyping } = useIsTyping({ timeout: 1500 });
 
-  const store = useAppStore((s) => ({
-    setMessages: s.setMessages,
-    messages: s.messages,
-  }));
-
   const submitMessage = async () => {
     if (textRef.value === "") {
       return;
     }
-    const r = await client["student/send_message"]({
-      message: textRef.value,
-    });
-
-    if (r.isErr()) {
-      alert("Failed to send message: " + r.error);
-      return;
-    }
-
-    store.setMessages("messages", [
-      ...store.messages.messages,
-      {
-        content: textRef.value,
-        userIsAuthor: true,
-      },
-    ]);
+    props.onSubmitMessage(textRef.value);
 
     textRef.value = "";
     conversationContainerRef.scrollTo(0, conversationContainerRef.scrollHeight);
@@ -82,9 +60,7 @@ function ChatConversation(props: {
   });
 
   createEffect(async () => {
-    const r = await client["student/typing"]({
-      typing: isTyping(),
-    });
+    props.onTyping(isTyping());
   });
 
   return (

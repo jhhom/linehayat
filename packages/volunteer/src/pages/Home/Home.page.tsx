@@ -1,5 +1,5 @@
 import { useAppStore } from "~/stores/stores";
-import LoginPage from "./Login.subpage";
+import LoginPage from "./Login.subpage/Login.subpage";
 import { match } from "ts-pattern";
 import { createEffect, Show } from "solid-js";
 import DashboardPage from "~/pages/Home/Dashboard.subpage";

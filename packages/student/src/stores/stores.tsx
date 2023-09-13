@@ -14,7 +14,7 @@ export const AppProvider: ParentComponent = (props) => {
   );
 };
 
-type AppStore = ReturnType<typeof useProfile> &
+export type AppStore = ReturnType<typeof useProfile> &
   ReturnType<typeof useMessages> &
   ReturnType<typeof useVolunteer>;
 

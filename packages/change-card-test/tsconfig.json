@@ -19,10 +19,7 @@
             "../backend/src/*",
         ],
         "@api-contract/*": [
-            "../shared/api-contract/*"
-        ],
-        "@config/*": [
-            "../shared/config/*"
+            "../api-contract/*"
         ]
       },
   }

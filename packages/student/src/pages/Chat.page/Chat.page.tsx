@@ -1,30 +1,23 @@
-import {
-  onMount,
-  type Component,
-  createSignal,
-  Show,
-  onCleanup,
-  createEffect,
-} from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createSignal, Show, onCleanup, createEffect } from "solid-js";
 import { match } from "ts-pattern";
+
 import { client } from "~/external/api-client/trpc";
-import storage from "~/external/browser/local-storage";
 import { useAppStore } from "~/stores/stores";
-import Chat from "~/pages/Chat.page/Chat";
-import { StudentSubscriptionEventPayload } from "@api-contract/subscription";
-import { useIsTyping } from "~/pages/Chat.page/use-is-typing.hook";
+import { useLogin } from "~/pages/Chat.page/hooks/use-login.hook";
+
+import Chat from "~/pages/Chat.page/components/Chat/Chat";
 
 function ChatPage() {
   const [card, setCard] = createSignal(0);
   const [agreeToTNC, setAgreeToTNC] = createSignal(false);
-  const [listenersToCleanup, setListenersToCleanup] = createSignal<
-    [keyof StudentSubscriptionEventPayload, number][]
-  >([]);
+  const navigate = useNavigate();
 
   const store = useAppStore((s) => s);
 
-
-
+  const { login, listenersToCleanup } = useLogin({
+    onMakeRequestFailed: () => setCard(0),
+  });
 
   onCleanup(() => {
     for (const [k, v] of listenersToCleanup()) {
@@ -54,7 +47,40 @@ function ChatPage() {
               {match(store.profile.status)
                 .with("chatting", () => (
                   <div>
-                    <Chat />
+                    <Chat
+                      volunteerStatus={store.volunteer.status}
+                      messages={store.messages.messages}
+                      onTyping={async (isTyping) => {
+                        const r = await client["student/typing"]({
+                          typing: isTyping,
+                        });
+                      }}
+                      onHangup={async () => {
+                        await client["student/hang_up"]();
+
+                        store.setProfile("status", "idle");
+
+                        navigate("/");
+                      }}
+                      onSubmitMessage={async (message) => {
+                        const r = await client["student/send_message"]({
+                          message,
+                        });
+
+                        if (r.isErr()) {
+                          alert("Failed to send message: " + r.error);
+                          return;
+                        }
+
+                        store.setMessages("messages", [
+                          ...store.messages.messages,
+                          {
+                            content: message,
+                            userIsAuthor: true,
+                          },
+                        ]);
+                      }}
+                    />
                   </div>
                 ))
                 .with("idle", () => (
@@ -89,64 +115,7 @@ function ChatPage() {
                       <button
                         onClick={async () => {
                           if (card() === 2) {
-                            const r = await client["student/make_request"]();
-                            if (r.isErr()) {
-                              alert("Failed to make request: " + r.error);
-                              setCard(0);
-                              return;
-                            }
-                            storage.setToken(r.value.token);
-                            store.setProfile({ status: "waiting" });
-                            const listenerId = client.addListener(
-                              "student.request_accepted",
-                              (e) => {
-                                store.setProfile({ status: "chatting" });
-                              },
-                            );
-                            const listenerId2 = client.addListener(
-                              "student.volunteer_disconnected",
-                              (e) => {
-                                alert("Volunteer has disconnected");
-                                store.setProfile({ status: "idle" });
-                                client.clearListeners();
-                              },
-                            );
-                            const listenerId3 = client.addListener(
-                              "student.message",
-                              (e) => {
-                                store.setMessages("messages", [
-                                  ...store.messages.messages,
-                                  {
-                                    content: e.message,
-                                    userIsAuthor: false,
-                                  },
-                                ]);
-                              },
-                            );
-                            const listenerId4 = client.addListener(
-                              "student.hanged_up",
-                              (e) => {
-                                alert("volunteer has hanged-up");
-                                store.setProfile({ status: "idle" });
-                                client.clearListeners();
-                              },
-                            );
-                            const listenerId5 = client.addListener(
-                              "student.volunteer_typing",
-                              (e) => {
-                                store.setVolunteer(
-                                  "status",
-                                  e.typing ? "typing" : "idle",
-                                );
-                              },
-                            );
-                            setListenersToCleanup([
-                              ["student.request_accepted", listenerId],
-                              ["student.volunteer_disconnected", listenerId2],
-                              ["student.message", listenerId3],
-                              ["student.hanged_up", listenerId4],
-                              ["student.volunteer_typing", listenerId5],
-                            ]);
+                            await login(store);
                             setCard(0);
                           } else {
                             setCard((c) => c + 1);

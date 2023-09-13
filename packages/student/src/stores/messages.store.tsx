@@ -1,7 +1,7 @@
 import { ParentComponent, createContext, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
-type Messages = {
+export type Messages = {
   messages: {
     content: string;
     userIsAuthor: boolean;

@@ -6,6 +6,46 @@ import { client } from "~/external/api-client/client";
 import SidebarLayout from "~/layouts/Sidebar.layout";
 import { useAppStore } from "~/stores/stores";
 
+export default function DashboardPage() {
+  const navigate = useNavigate();
+  const store = useAppStore((s) => s);
+
+  if (store.profile.profile.status === "logged-out") {
+    throw new Error("User is not authenticated");
+  }
+
+  return (
+    <div class="flex h-full w-full">
+      <div class="basis-1/2 border-r border-r-gray-300 pt-2">
+        <VolunteerTable
+          volunteers={store.dashboard.dashboard.onlineVolunteers}
+        />
+      </div>
+
+      <div class="basis-1/2 pt-2">
+        <PendingRequestTable
+          pendingRequests={store.dashboard.dashboard.pendingRequests}
+          canAcceptRequest={store.profile.profile.status === "idle"}
+          onAcceptRequest={async (studentId) => {
+            if (store.profile.profile.status !== "idle") {
+              alert("Cannot accept request, user is busy");
+              return;
+            }
+            const r = await client["volunteer/accept_request"]({ studentId });
+            if (r.isErr()) {
+              alert("Failed to accept request: " + r.error);
+              return;
+            }
+
+            store.setProfile("profile", { status: "busy-chatting" });
+            navigate("/chat");
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function VolunteerTable(props: {
   volunteers: DashboardUpdate["onlineVolunteers"];
 }) {
@@ -70,46 +110,6 @@ function PendingRequestTable(props: {
             </div>
           )}
         </For>
-      </div>
-    </div>
-  );
-}
-
-export default function DashboardPage() {
-  const navigate = useNavigate();
-  const store = useAppStore((s) => s);
-
-  if (store.profile.profile.status === "logged-out") {
-    throw new Error("User is not authenticated");
-  }
-
-  return (
-    <div class="flex h-full w-full">
-      <div class="basis-1/2 border-r border-r-gray-300 pt-2">
-        <VolunteerTable
-          volunteers={store.dashboard.dashboard.onlineVolunteers}
-        />
-      </div>
-
-      <div class="basis-1/2 pt-2">
-        <PendingRequestTable
-          pendingRequests={store.dashboard.dashboard.pendingRequests}
-          canAcceptRequest={store.profile.profile.status === "idle"}
-          onAcceptRequest={async (studentId) => {
-            if (store.profile.profile.status !== "idle") {
-              alert("Cannot accept request, user is busy");
-              return;
-            }
-            const r = await client["volunteer/accept_request"]({ studentId });
-            if (r.isErr()) {
-              alert("Failed to accept request: " + r.error);
-              return;
-            }
-
-            store.setProfile("profile", { status: "busy-chatting" });
-            navigate("/chat");
-          }}
-        />
       </div>
     </div>
   );
