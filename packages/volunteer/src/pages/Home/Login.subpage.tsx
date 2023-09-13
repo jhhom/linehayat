@@ -1,12 +1,13 @@
 import { z } from "zod";
+import { createSignal } from "solid-js";
 import { createForm, zodForm } from "@modular-forms/solid";
 
 import storage from "~/external/browser/local-storage";
 
 import { client } from "~/external/api-client/client";
 import { useAppStore } from "~/stores/stores";
-import { useNavigate } from "@solidjs/router";
 import { createEffect, onCleanup, onMount } from "solid-js";
+import { VolunteerSubscriptionEventPayload } from "@api-contract/subscription";
 
 const formSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
@@ -74,6 +75,16 @@ export default function LoginPage() {
   // temporary auto-login to ease debugging
   useAutoLogin({ username: "james", password: "james123" });
 
+  const [listenersToCleanup, setListenersToCleanup] = createSignal<
+    [keyof VolunteerSubscriptionEventPayload, number][]
+  >([]);
+
+  onCleanup(() => {
+    for (const [k, v] of listenersToCleanup()) {
+      client.removeListener(k, v);
+    }
+  });
+
   return (
     <div class="flex h-screen w-screen items-center justify-center">
       <div class="w-96 rounded-md border border-gray-300 py-4">
@@ -129,15 +140,12 @@ export default function LoginPage() {
                   store.setProfile("profile", { status: "idle" });
                 },
               );
-              onCleanup(() => {
-                client.removeListener("volunteer.dashboard_update", listenerId);
-                client.removeListener(
-                  "volunteer.student_disconnected",
-                  listenerId2,
-                );
-                client.removeListener("volunteer.message", listenerId3);
-                client.removeListener("volunteer.hanged_up", listenerId4);
-              });
+              setListenersToCleanup([
+                ["volunteer.dashboard_update", listenerId],
+                ["volunteer.student_disconnected", listenerId2],
+                ["volunteer.message", listenerId3],
+                ["volunteer.hanged_up", listenerId4],
+              ]);
             }}
             class="px-4"
           >

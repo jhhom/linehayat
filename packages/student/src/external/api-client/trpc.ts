@@ -81,6 +81,15 @@ export class Client implements IStudentClient {
     this.#socketListeners[event].delete(listenerId);
   }
 
+  clearListeners() {
+    this.#socketListeners = {
+      "student.request_accepted": new Map(),
+      "student.volunteer_disconnected": new Map(),
+      "student.message": new Map(),
+      "student.hanged_up": new Map(),
+    };
+  }
+
   #runListener<T extends keyof StudentSubscriptionEventPayload>(
     event: T,
     payload: StudentSubscriptionEventPayload[T],

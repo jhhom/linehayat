@@ -6,11 +6,166 @@ import {
   onCleanup,
 } from "solid-js";
 import { match } from "ts-pattern";
-import { Router } from "@solidjs/router";
 import { client } from "~/external/api-client/trpc";
 import storage from "~/external/browser/local-storage";
 import { useAppStore } from "~/stores/stores";
 import Chat from "~/pages/Chat.page/Chat";
+import { StudentSubscriptionEventPayload } from "@api-contract/subscription";
+
+function ChatPage() {
+  const [card, setCard] = createSignal(0);
+  const [agreeToTNC, setAgreeToTNC] = createSignal(false);
+  const [listenersToCleanup, setListenersToCleanup] = createSignal<
+    [keyof StudentSubscriptionEventPayload, number][]
+  >([]);
+
+  const store = useAppStore((s) => s);
+
+  onCleanup(() => {
+    for (const [k, v] of listenersToCleanup()) {
+      client.removeListener(k, v);
+    }
+  });
+
+  return (
+    <div>
+      <div class="h-16 w-full bg-blue-100">
+        <div class="container mx-auto flex h-full items-center">
+          <p>Navbar</p>
+        </div>
+      </div>
+
+      <div class="container mx-auto">
+        <div class="w-full">
+          <div class="mt-3 flex items-center">
+            <div class="h-12 w-12 p-1">
+              <img class="h-12 w-12" src="chat-bubbles.svg" />
+            </div>
+            <p class="ml-2 h-12 pt-4 text-lg">LineHayat Live Chat</p>
+          </div>
+
+          <div class="mt-4 h-[640px] w-full">
+            <div class="h-full w-full">
+              {match(store.profile.status)
+                .with("chatting", () => (
+                  <div>
+                    <Chat />
+                  </div>
+                ))
+                .with("idle", () => (
+                  <div class="h-full w-full rounded-lg bg-blue-100">
+                    <div class="h-[85%] w-full">
+                      {match(card())
+                        .with(0, () => <Content1 />)
+                        .with(1, () => <Content2 />)
+                        .with(2, () => (
+                          <Content3
+                            agreeToTNC={agreeToTNC()}
+                            onSetAgreeToTNC={setAgreeToTNC}
+                          />
+                        ))
+                        .otherwise(() => (
+                          <Content1 />
+                        ))}
+                    </div>
+                    <div class="flex h-[15%] items-center justify-between px-6">
+                      <div>
+                        <button
+                          onClick={async () => {
+                            setCard((c) => c - 1);
+                          }}
+                          class="rounded-full bg-white px-6 py-2 text-lg"
+                          classList={{ hidden: card() === 0 }}
+                        >
+                          Previous
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={async () => {
+                          if (card() === 2) {
+                            const r = await client["student/make_request"]();
+                            if (r.isErr()) {
+                              alert("Failed to make request: " + r.error);
+                              setCard(0);
+                              return;
+                            }
+                            storage.setToken(r.value.token);
+                            store.setProfile({ status: "waiting" });
+                            const listenerId = client.addListener(
+                              "student.request_accepted",
+                              (e) => {
+                                store.setProfile({ status: "chatting" });
+                              },
+                            );
+                            const listenerId2 = client.addListener(
+                              "student.volunteer_disconnected",
+                              (e) => {
+                                alert("Volunteer has disconnected");
+                                store.setProfile({ status: "idle" });
+                                client.clearListeners();
+                              },
+                            );
+                            const listenerId3 = client.addListener(
+                              "student.message",
+                              (e) => {
+                                store.setMessages("messages", [
+                                  ...store.messages.messages,
+                                  {
+                                    content: e.message,
+                                    userIsAuthor: false,
+                                  },
+                                ]);
+                              },
+                            );
+                            const listenerId4 = client.addListener(
+                              "student.hanged_up",
+                              (e) => {
+                                alert("volunteer has hanged-up");
+                                store.setProfile({ status: "idle" });
+                                client.clearListeners();
+                              },
+                            );
+                            setListenersToCleanup([
+                              ["student.request_accepted", listenerId],
+                              ["student.volunteer_disconnected", listenerId2],
+                              ["student.message", listenerId3],
+                              ["student.hanged_up", listenerId4],
+                            ]);
+                            setCard(0);
+                          } else {
+                            setCard((c) => c + 1);
+                          }
+                        }}
+                        class="rounded-full px-6 py-2"
+                        classList={{
+                          hidden: card() === 3,
+                          "text-lg bg-white": !(card() === 2 && !agreeToTNC()),
+                          "bg-white/40 text-gray-400":
+                            card() === 2 && !agreeToTNC(),
+                        }}
+                        disabled={card() === 2 && !agreeToTNC()}
+                      >
+                        <Show when={card() === 2} fallback="Next">
+                          Chat
+                        </Show>
+                      </button>
+                    </div>
+                  </div>
+                ))
+                .with("waiting", () => (
+                  <div class="h-full w-full rounded-lg bg-blue-100">
+                    <p>Please wait</p>
+                  </div>
+                ))
+                .exhaustive()}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Content1() {
   return (
@@ -138,162 +293,6 @@ function Content3(props: {
             <p class="ml-3">
               I agree with all the terms and conditions listed above.
             </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChatPage() {
-  const [card, setCard] = createSignal(0);
-  const [agreeToTNC, setAgreeToTNC] = createSignal(false);
-
-  const store = useAppStore((s) => s);
-
-  return (
-    <div>
-      <div class="h-16 w-full bg-blue-100">
-        <div class="container mx-auto flex h-full items-center">
-          <p>Navbar</p>
-        </div>
-      </div>
-
-      <div class="container mx-auto">
-        <div class="w-full">
-          <div class="mt-3 flex items-center">
-            <div class="h-12 w-12 p-1">
-              <img class="h-12 w-12" src="chat-bubbles.svg" />
-            </div>
-            <p class="ml-2 h-12 pt-4 text-lg">LineHayat Live Chat</p>
-          </div>
-
-          <div class="mt-4 h-[640px] w-full">
-            <div class="h-full w-full">
-              {match(store.profile.status)
-                .with("chatting", () => (
-                  <div>
-                    <Chat />
-                  </div>
-                ))
-                .with("idle", () => (
-                  <div class="h-full w-full rounded-lg bg-blue-100">
-                    <div class="h-[85%] w-full">
-                      {match(card())
-                        .with(0, () => <Content1 />)
-                        .with(1, () => <Content2 />)
-                        .with(2, () => (
-                          <Content3
-                            agreeToTNC={agreeToTNC()}
-                            onSetAgreeToTNC={setAgreeToTNC}
-                          />
-                        ))
-                        .otherwise(() => (
-                          <Content1 />
-                        ))}
-                    </div>
-                    <div class="flex h-[15%] items-center justify-between px-6">
-                      <div>
-                        <button
-                          onClick={async () => {
-                            setCard((c) => c - 1);
-                          }}
-                          class="rounded-full bg-white px-6 py-2 text-lg"
-                          classList={{ hidden: card() === 0 }}
-                        >
-                          Previous
-                        </button>
-                      </div>
-
-                      <button
-                        onClick={async () => {
-                          if (card() === 2) {
-                            const r = await client["student/make_request"]();
-                            if (r.isErr()) {
-                              alert("Failed to make request: " + r.error);
-                              setCard(0);
-                              return;
-                            }
-                            storage.setToken(r.value.token);
-                            store.setProfile({ status: "waiting" });
-                            const listenerId = client.addListener(
-                              "student.request_accepted",
-                              (e) => {
-                                store.setProfile({ status: "chatting" });
-                              },
-                            );
-                            const listenerId2 = client.addListener(
-                              "student.volunteer_disconnected",
-                              (e) => {
-                                alert("Volunteer has disconnected");
-                                store.setProfile({ status: "idle" });
-                              },
-                            );
-                            const listenerId3 = client.addListener(
-                              "student.message",
-                              (e) => {
-                                store.setMessages("messages", [
-                                  ...store.messages.messages,
-                                  {
-                                    content: e.message,
-                                    userIsAuthor: false,
-                                  },
-                                ]);
-                              },
-                            );
-                            const listenerId4 = client.addListener(
-                              "student.hanged_up",
-                              (e) => {
-                                alert("volunteer has hanged-up");
-                                store.setProfile({ status: "idle" });
-                              },
-                            );
-                            onCleanup(() => {
-                              client.removeListener(
-                                "student.request_accepted",
-                                listenerId,
-                              );
-                              client.removeListener(
-                                "student.volunteer_disconnected",
-                                listenerId2,
-                              );
-                              client.removeListener(
-                                "student.message",
-                                listenerId3,
-                              );
-                              client.removeListener(
-                                "student.hanged_up",
-                                listenerId4,
-                              );
-                            });
-                            setCard(0);
-                          } else {
-                            setCard((c) => c + 1);
-                          }
-                        }}
-                        class="rounded-full px-6 py-2"
-                        classList={{
-                          hidden: card() === 3,
-                          "text-lg bg-white": !(card() === 2 && !agreeToTNC()),
-                          "bg-white/40 text-gray-400":
-                            card() === 2 && !agreeToTNC(),
-                        }}
-                        disabled={card() === 2 && !agreeToTNC()}
-                      >
-                        <Show when={card() === 2} fallback="Next">
-                          Chat
-                        </Show>
-                      </button>
-                    </div>
-                  </div>
-                ))
-                .with("waiting", () => (
-                  <div class="h-full w-full rounded-lg bg-blue-100">
-                    <p>Please wait</p>
-                  </div>
-                ))
-                .exhaustive()}
-            </div>
           </div>
         </div>
       </div>
