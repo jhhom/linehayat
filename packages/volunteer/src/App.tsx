@@ -3,7 +3,7 @@ import { Route, Routes, Router } from "@solidjs/router";
 import trpc from "./utils/trpc";
 
 import HomePage from "./pages/Home/Home.page";
-import ChatPage from "./pages/Chat.page";
+import ChatPage from "./pages/Chat.page/Chat.page";
 
 import { match } from "ts-pattern";
 

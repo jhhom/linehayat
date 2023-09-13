@@ -10,11 +10,14 @@ export type StudentSubscriptionMessage = {
 }[keyof StudentSubscriptionEventPayload];
 
 export type StudentSubscriptionEventPayload = {
-  "student.hanged_up": {}
+  "student.hanged_up": {};
   "student.request_accepted": {};
   "student.volunteer_disconnected": {};
   "student.message": {
     message: string;
+  };
+  "student.volunteer_typing": {
+    typing: boolean;
   };
 };
 
@@ -26,11 +29,14 @@ export type VolunteerSubscriptionMessage = {
 }[keyof VolunteerSubscriptionEventPayload];
 
 export type VolunteerSubscriptionEventPayload = {
-  "volunteer.hanged_up": {}
+  "volunteer.hanged_up": {};
   "volunteer.dashboard_update": DashboardUpdate;
   "volunteer.student_disconnected": {};
   "volunteer.message": {
     message: string;
+  };
+  "volunteer.student_typing": {
+    typing: boolean;
   };
 };
 

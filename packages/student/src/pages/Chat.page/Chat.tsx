@@ -1,8 +1,9 @@
 import { useNavigate } from "@solidjs/router";
-import { For, Show, onMount } from "solid-js";
+import { For, Show, onMount, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useAppStore } from "~/stores/stores";
 import { client } from "~/external/api-client/trpc";
+import { useIsTyping } from "~/pages/Chat.page/use-is-typing.hook";
 
 export default function Chat() {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ export default function Chat() {
   return (
     <div class="h-full w-full">
       <div class="flex h-full w-full items-center justify-center">
+        <Show when={store.volunteer.status === "typing"}>
+          <p>Volunteer is typing...</p>
+        </Show>
         <ChatConversation
           messages={store.messages.messages}
           onHangup={async () => {
@@ -30,43 +34,14 @@ export default function Chat() {
   );
 }
 
-const initialMessages: ConversationProps["messages"] = [
-  {
-    content: "Hello James",
-    userIsAuthor: true,
-  },
-  {
-    content: "Hello Veronica",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-];
-
 function ChatConversation(props: {
   messages: ConversationProps["messages"];
   onHangup: () => void;
 }) {
   let textRef!: HTMLInputElement;
   let conversationContainerRef!: HTMLDivElement;
+
+  const { register, isTyping } = useIsTyping({ timeout: 1500 });
 
   const store = useAppStore((s) => ({
     setMessages: s.setMessages,
@@ -106,6 +81,12 @@ function ChatConversation(props: {
     });
   });
 
+  createEffect(async () => {
+    const r = await client["student/typing"]({
+      typing: isTyping(),
+    });
+  });
+
   return (
     <div>
       <div class="flex justify-end pb-2">
@@ -119,7 +100,10 @@ function ChatConversation(props: {
       <Conversation ref={conversationContainerRef} messages={props.messages} />
       <div class="flex">
         <input
-          ref={textRef}
+          ref={(r) => {
+            textRef = r;
+            register(r);
+          }}
           class="w-full rounded-bl-md border border-gray-300 px-2 py-1"
           type="text"
           name=""

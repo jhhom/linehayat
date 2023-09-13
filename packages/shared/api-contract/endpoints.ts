@@ -36,6 +36,14 @@ const volunteerContract = {
       message: z.string(),
     }),
   },
+  "volunteer/typing": {
+    input: z.object({
+      typing: z.boolean(),
+    }),
+    output: z.object({
+      message: z.string(),
+    }),
+  },
 };
 
 const studentContract = {
@@ -53,6 +61,14 @@ const studentContract = {
     }),
   },
   "student/hang_up": {
+    output: z.object({
+      message: z.string(),
+    }),
+  },
+  "student/typing": {
+    input: z.object({
+      typing: z.boolean(),
+    }),
     output: z.object({
       message: z.string(),
     }),

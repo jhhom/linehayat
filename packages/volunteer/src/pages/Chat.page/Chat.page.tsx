@@ -1,8 +1,9 @@
 import { useNavigate } from "@solidjs/router";
-import { For, Show, onMount } from "solid-js";
+import { For, Show, createEffect, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useAppStore } from "~/stores/stores";
 import { client } from "~/external/api-client/client";
+import { useIsTyping } from "~/pages/Chat.page/use-is-typing.hook";
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -35,37 +36,6 @@ export default function ChatPage() {
   );
 }
 
-const initialMessages: ConversationProps["messages"] = [
-  {
-    content: "Hello James",
-    userIsAuthor: true,
-  },
-  {
-    content: "Hello Veronica",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-  {
-    content:
-      "Morbi sit amet eros ac neque pretium bibendum ut eget augue. Mauris fermentum, enim non faucibus ultricies, lectus odio facilisis nibh, sit amet imperdiet lorem urna ut diam. Morbi egestas, leo nec interdum interdum, erat felis pulvinar massa, sed bibendum lectus mi non mauris. In eu arcu est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin lacus nisi, vestibulum in mattis in, volutpat eu ligula. Quisque tristique urna non metus elementum tempor. In hac habitasse platea dictumst. Praesent eleifend sem massa, nec scelerisque felis sollicitudin sed. ",
-    userIsAuthor: false,
-  },
-];
-
 function Chat(props: {
   messages: ConversationProps["messages"];
   onHangup: () => void;
@@ -76,7 +46,16 @@ function Chat(props: {
   const store = useAppStore((s) => ({
     setMessages: s.setMessages,
     messages: s.messages,
+    student: s.student,
   }));
+
+  const { register, isTyping } = useIsTyping({ timeout: 1500 });
+
+  createEffect(async () => {
+    const r = await client["volunteer/typing"]({
+      typing: isTyping(),
+    });
+  });
 
   const submitMessage = async () => {
     if (textRef.value === "") {
@@ -122,10 +101,16 @@ function Chat(props: {
           Hang up
         </button>
       </div>
+      <Show when={store.student.status === "typing"}>
+        <p>Student is typing...</p>
+      </Show>
       <Conversation ref={conversationContainerRef} messages={props.messages} />
       <div class="flex">
         <input
-          ref={textRef}
+          ref={(r) => {
+            textRef = r;
+            register(r);
+          }}
           class="w-full rounded-bl-md border border-gray-300 px-2 py-1"
           type="text"
           name=""

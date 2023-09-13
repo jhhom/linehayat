@@ -4,6 +4,7 @@ import {
   createSignal,
   Show,
   onCleanup,
+  createEffect,
 } from "solid-js";
 import { match } from "ts-pattern";
 import { client } from "~/external/api-client/trpc";
@@ -11,6 +12,7 @@ import storage from "~/external/browser/local-storage";
 import { useAppStore } from "~/stores/stores";
 import Chat from "~/pages/Chat.page/Chat";
 import { StudentSubscriptionEventPayload } from "@api-contract/subscription";
+import { useIsTyping } from "~/pages/Chat.page/use-is-typing.hook";
 
 function ChatPage() {
   const [card, setCard] = createSignal(0);
@@ -20,6 +22,9 @@ function ChatPage() {
   >([]);
 
   const store = useAppStore((s) => s);
+
+
+
 
   onCleanup(() => {
     for (const [k, v] of listenersToCleanup()) {
@@ -126,11 +131,21 @@ function ChatPage() {
                                 client.clearListeners();
                               },
                             );
+                            const listenerId5 = client.addListener(
+                              "student.volunteer_typing",
+                              (e) => {
+                                store.setVolunteer(
+                                  "status",
+                                  e.typing ? "typing" : "idle",
+                                );
+                              },
+                            );
                             setListenersToCleanup([
                               ["student.request_accepted", listenerId],
                               ["student.volunteer_disconnected", listenerId2],
                               ["student.message", listenerId3],
                               ["student.hanged_up", listenerId4],
+                              ["student.volunteer_typing", listenerId5],
                             ]);
                             setCard(0);
                           } else {

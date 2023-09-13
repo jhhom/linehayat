@@ -48,6 +48,7 @@ export class Client implements IStudentClient {
       "student.volunteer_disconnected": new Map(),
       "student.message": new Map(),
       "student.hanged_up": new Map(),
+      "student.volunteer_typing": new Map(),
     };
   }
 
@@ -87,6 +88,7 @@ export class Client implements IStudentClient {
       "student.volunteer_disconnected": new Map(),
       "student.message": new Map(),
       "student.hanged_up": new Map(),
+      "student.volunteer_typing": new Map(),
     };
   }
 
@@ -109,6 +111,13 @@ export class Client implements IStudentClient {
   async ["student/send_message"](arg: ServiceInput<"student/send_message">) {
     const r = await this.#fromApiPromise(
       this.#trpc["student/send_message"].mutate(arg),
+    );
+    return r;
+  }
+
+  async ["student/typing"](arg: ServiceInput<"student/typing">) {
+    const r = await this.#fromApiPromise(
+      this.#trpc["student/typing"].mutate(arg),
     );
     return r;
   }

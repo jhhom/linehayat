@@ -146,6 +146,22 @@ export const makeStudentRouter = (
 
         return result.value;
       }),
+    ["student/typing"]: procedure
+      .use(guardIsAuthedAsStudent)
+      .input(contract["student/typing"].input)
+      .output(contract["student/typing"].output)
+      .mutation(async ({ input, ctx }) => {
+        const r = await studentService.typing(
+          { db, onlineStudents, onlineVolunteers, volunteerStudentPairs },
+          { studentId: ctx.auth.studentId },
+          { typing: input.typing }
+        );
+        if (r.isErr()) {
+          throw r.error;
+        }
+
+        return r.value;
+      }),
   });
 };
 

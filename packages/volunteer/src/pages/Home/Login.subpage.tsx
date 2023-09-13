@@ -56,11 +56,15 @@ const useAutoLogin = (v: { username: string; password: string }) => {
       alert("student has hanged-up");
       store.setProfile("profile", { status: "idle" });
     });
+    const listenerId5 = client.addListener("volunteer.student_typing", (e) => {
+      store.setStudent("status", e.typing ? "typing" : "idle");
+    });
     onCleanup(() => {
       client.removeListener("volunteer.dashboard_update", listenerId);
       client.removeListener("volunteer.student_disconnected", listenerId2);
       client.removeListener("volunteer.message", listenerId3);
       client.removeListener("volunteer.hanged_up", listenerId4);
+      client.removeListener("volunteer.student_typing", listenerId5);
     });
   });
 };
@@ -140,11 +144,18 @@ export default function LoginPage() {
                   store.setProfile("profile", { status: "idle" });
                 },
               );
+              const listenerId5 = client.addListener(
+                "volunteer.student_typing",
+                (e) => {
+                  store.setStudent("status", e.typing ? "typing" : "idle");
+                },
+              );
               setListenersToCleanup([
                 ["volunteer.dashboard_update", listenerId],
                 ["volunteer.student_disconnected", listenerId2],
                 ["volunteer.message", listenerId3],
                 ["volunteer.hanged_up", listenerId4],
+                ["volunteer.student_typing", listenerId5],
               ]);
             }}
             class="px-4"
