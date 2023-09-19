@@ -3,8 +3,6 @@ import { Result } from "neverthrow";
 import { z } from "zod";
 import { AppErrorUnion } from "./errors";
 
-import { Apply } from "fp-ts/Apply";
-
 export type ServiceResult<T extends keyof Contract> = Promise<
   Result<z.infer<Contract[T]["output"]>, AppErrorUnion>
 >;
@@ -39,6 +37,19 @@ export const zStudentId = z.custom<`st_${string}`>((val) => {
 export const zVolunteerId = z.custom<`vl_${string}`>((val) => {
   return (val as string).startsWith(`vl_`);
 });
+
+export const zMessage = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    content: z.string(),
+  }),
+  z.object({
+    type: z.literal("voice"),
+    url: z.string(),
+  }),
+]);
+
+export type Message = z.infer<typeof zMessage>;
 
 export type StudentId = `st_${string}`;
 

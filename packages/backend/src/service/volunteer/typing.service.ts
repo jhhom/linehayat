@@ -26,7 +26,7 @@ export async function typing(
   arg: {
     typing: boolean;
   }
-): ServiceResult<"volunteer/send_message"> {
+): ServiceResult<"volunteer/typing"> {
   const studentId = volunteerStudentPairs.get(volunteerCtx.volunteerId);
   if (studentId) {
     const student = onlineStudents.get(studentId);

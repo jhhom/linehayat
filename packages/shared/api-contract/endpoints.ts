@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { zDashboardUpdateSchema } from "@api-contract/subscription";
-import { zStudentId } from "@api-contract/types";
+import { zMessage, zStudentId } from "@api-contract/types";
+
+const zMessageInput = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    content: z.string(),
+  }),
+  z.object({
+    type: z.literal("voice"),
+    blobBase64: z.string(),
+  }),
+]);
 
 const volunteerContract = {
   "volunteer/login": {
@@ -24,12 +35,8 @@ const volunteerContract = {
     }),
   },
   "volunteer/send_message": {
-    input: z.object({
-      message: z.string(),
-    }),
-    output: z.object({
-      message: z.string(),
-    }),
+    input: zMessageInput,
+    output: zMessage,
   },
   "volunteer/hang_up": {
     output: z.object({
@@ -53,12 +60,8 @@ const studentContract = {
     }),
   },
   "student/send_message": {
-    input: z.object({
-      message: z.string(),
-    }),
-    output: z.object({
-      message: z.string(),
-    }),
+    input: zMessageInput,
+    output: zMessage,
   },
   "student/hang_up": {
     output: z.object({
@@ -85,3 +88,5 @@ export type Contract = typeof contract;
 export type StudentContract = typeof studentContract;
 
 export type VolunteerContract = typeof volunteerContract;
+
+export type MessageInput = z.infer<typeof zMessageInput>;

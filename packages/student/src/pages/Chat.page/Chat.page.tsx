@@ -63,9 +63,7 @@ function ChatPage() {
                         navigate("/");
                       }}
                       onSubmitMessage={async (message) => {
-                        const r = await client["student/send_message"]({
-                          message,
-                        });
+                        const r = await client["student/send_message"](message);
 
                         if (r.isErr()) {
                           alert("Failed to send message: " + r.error);
@@ -75,7 +73,7 @@ function ChatPage() {
                         store.setMessages("messages", [
                           ...store.messages.messages,
                           {
-                            content: message,
+                            content: r.value,
                             userIsAuthor: true,
                           },
                         ]);

@@ -16,6 +16,9 @@ const loadConfig = () => {
   return ok(result.data);
 };
 
+export const PROJECT_ROOT =
+  "/Users/joohom/Documents/Projects/SideProjects/linehayat/linehayat/packages/backend";
+
 export { loadConfig };
 
 export type ConfigSchema = z.infer<typeof configSchema>;

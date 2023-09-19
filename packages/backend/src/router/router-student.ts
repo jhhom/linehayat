@@ -113,9 +113,7 @@ export const makeStudentRouter = (
           {
             studentId: ctx.auth.studentId,
           },
-          {
-            message: input.message,
-          }
+          input
         );
 
         if (result.isErr()) {

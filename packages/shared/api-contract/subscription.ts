@@ -1,5 +1,5 @@
-import { VolunteerId, StudentId } from "@api-contract/types";
 import { zVolunteerId, zStudentId } from "@api-contract/types";
+import type { Message } from "@api-contract/types";
 import { z } from "zod";
 
 export type StudentSubscriptionMessage = {
@@ -13,9 +13,7 @@ export type StudentSubscriptionEventPayload = {
   "student.hanged_up": {};
   "student.request_accepted": {};
   "student.volunteer_disconnected": {};
-  "student.message": {
-    message: string;
-  };
+  "student.message": Message;
   "student.volunteer_typing": {
     typing: boolean;
   };
@@ -32,9 +30,7 @@ export type VolunteerSubscriptionEventPayload = {
   "volunteer.hanged_up": {};
   "volunteer.dashboard_update": DashboardUpdate;
   "volunteer.student_disconnected": {};
-  "volunteer.message": {
-    message: string;
-  };
+  "volunteer.message": Message;
   "volunteer.student_typing": {
     typing: boolean;
   };

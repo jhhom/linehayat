@@ -139,9 +139,7 @@ export const makeVolunteerRouter = (
           {
             volunteerId: volunteerUsernameToId(ctx.auth.username),
           },
-          {
-            message: input.message,
-          }
+          input
         );
         if (result.isErr()) {
           throw result.error;

@@ -3,41 +3,23 @@ import { createEffect, onMount, Show, For } from "solid-js";
 import { type Student } from "~/stores/student.store";
 import { useIsTyping } from "~/pages/Chat.page/components/Chat/use-is-typing.hook";
 
+import AudioPlayer from "~/pages/Chat.page/components/Chat/AudioPlayer/AudioPlayer";
+import { Message } from "@api-contract/types";
+import { MessageInput } from "@api-contract/endpoints";
+import VoiceTextInput from "~/pages/Chat.page/components/Chat/VoiceTextInput/VoiceTextInput";
+
+import { match } from "ts-pattern";
+
 export function Chat(props: {
   studentStatus: Student["status"];
   messages: ConversationProps["messages"];
   onTyping: (isTyping: boolean) => void;
-  onSubmitMessage: (message: string) => void;
+  onSubmitMessage: (message: MessageInput) => void;
   onHangup: () => void;
 }) {
-  let textRef!: HTMLInputElement;
   let conversationContainerRef!: HTMLDivElement;
 
   const { register, isTyping } = useIsTyping({ timeout: 1500 });
-
-  createEffect(async () => {
-    props.onTyping(isTyping());
-  });
-
-  const submitMessage = async () => {
-    if (textRef.value === "") {
-      return;
-    }
-
-    props.onSubmitMessage(textRef.value);
-
-    textRef.value = "";
-
-    conversationContainerRef.scrollTo(0, conversationContainerRef.scrollHeight);
-  };
-
-  onMount(() => {
-    textRef.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        submitMessage();
-      }
-    });
-  });
 
   return (
     <div>
@@ -53,24 +35,16 @@ export function Chat(props: {
         <p>Student is typing...</p>
       </Show>
       <Conversation ref={conversationContainerRef} messages={props.messages} />
-      <div class="flex">
-        <input
-          ref={(r) => {
-            textRef = r;
-            register(r);
-          }}
-          class="w-full rounded-bl-md border border-gray-300 px-2 py-1"
-          type="text"
-          name=""
-          id=""
-        />
-        <button
-          onClick={submitMessage}
-          class="rounded-br-md bg-green-600 px-4 py-1 text-white"
-        >
-          Submit
-        </button>
-      </div>
+      <VoiceTextInput
+        onSubmit={async (m) => {
+          await props.onSubmitMessage(m);
+          conversationContainerRef.scrollTo(
+            0,
+            conversationContainerRef.scrollHeight,
+          );
+        }}
+        onTyping={(t) => props.onTyping(t)}
+      />
     </div>
   );
 }
@@ -78,7 +52,7 @@ export function Chat(props: {
 type ConversationProps = {
   ref: HTMLDivElement;
   messages: {
-    content: string;
+    content: Message;
     userIsAuthor: boolean;
   }[];
 };
@@ -102,18 +76,26 @@ function Conversation(props: ConversationProps) {
 }
 
 function ConversationPeerMessage(props: {
-  content: string;
+  content: Message;
   userIsAuthor: boolean;
 }) {
   return (
-    <p
+    <div
       class="w-fit max-w-[60%] rounded-md p-2"
       classList={{
         "bg-white": !props.userIsAuthor,
         "self-end bg-green-100": props.userIsAuthor,
       }}
     >
-      {props.content}
-    </p>
+      {match(props.content)
+        .with({ type: "text" }, (message) => (
+          <p class="rounded-md px-4 py-2">{message.content}</p>
+        ))
+        .otherwise((message) => (
+          <div class="rounded-md px-4 py-2">
+            <AudioPlayer audioSrc={message.url} />
+          </div>
+        ))}
+    </div>
   );
 }

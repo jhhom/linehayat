@@ -36,6 +36,7 @@ export const useLogin = () => {
       "volunteer.student_disconnected",
       (e) => {
         alert("Student has disconnected");
+        store.setMessages("messages", []);
         store.setProfile("profile", { status: "idle" });
       },
     );
@@ -43,13 +44,14 @@ export const useLogin = () => {
       store.setMessages("messages", [
         ...store.messages.messages,
         {
-          content: e.message,
+          content: e,
           userIsAuthor: false,
         },
       ]);
     });
     const listenerId4 = client.addListener("volunteer.hanged_up", (e) => {
       alert("student has hanged-up");
+      store.setMessages("messages", []);
       store.setProfile("profile", { status: "idle" });
     });
     const listenerId5 = client.addListener("volunteer.student_typing", (e) => {
@@ -98,6 +100,7 @@ export const useAutoLogin = (v: { username: string; password: string }) => {
       "volunteer.student_disconnected",
       (e) => {
         alert("Student has disconnected");
+        store.setMessages("messages", []);
         store.setProfile("profile", { status: "idle" });
       },
     );
@@ -105,13 +108,14 @@ export const useAutoLogin = (v: { username: string; password: string }) => {
       store.setMessages("messages", [
         ...store.messages.messages,
         {
-          content: e.message,
+          content: e,
           userIsAuthor: false,
         },
       ]);
     });
     const listenerId4 = client.addListener("volunteer.hanged_up", (e) => {
       alert("student has hanged-up");
+      store.setMessages("messages", []);
       store.setProfile("profile", { status: "idle" });
     });
     const listenerId5 = client.addListener("volunteer.student_typing", (e) => {

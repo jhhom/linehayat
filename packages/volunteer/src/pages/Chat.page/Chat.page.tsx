@@ -30,9 +30,7 @@ export default function ChatPage() {
               });
             }}
             onSubmitMessage={async (message) => {
-              const r = await client["volunteer/send_message"]({
-                message,
-              });
+              const r = await client["volunteer/send_message"](message);
 
               if (r.isErr()) {
                 alert("Failed to send message: " + r.error);
@@ -42,7 +40,7 @@ export default function ChatPage() {
               store.setMessages("messages", [
                 ...store.messages.messages,
                 {
-                  content: message,
+                  content: r.value,
                   userIsAuthor: true,
                 },
               ]);

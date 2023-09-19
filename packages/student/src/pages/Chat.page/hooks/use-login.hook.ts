@@ -33,6 +33,7 @@ export function useLogin(props: { onMakeRequestFailed: () => void }) {
       "student.volunteer_disconnected",
       (e) => {
         alert("Volunteer has disconnected");
+        store.setMessages("messages", []);
         store.setProfile({ status: "idle" });
         client.clearListeners();
       },
@@ -41,13 +42,14 @@ export function useLogin(props: { onMakeRequestFailed: () => void }) {
       store.setMessages("messages", [
         ...store.messages.messages,
         {
-          content: e.message,
+          content: e,
           userIsAuthor: false,
         },
       ]);
     });
     const listenerId4 = client.addListener("student.hanged_up", (e) => {
       alert("volunteer has hanged-up");
+      store.setMessages("messages", []);
       store.setProfile({ status: "idle" });
       client.clearListeners();
     });

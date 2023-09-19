@@ -1,9 +1,10 @@
+import { Message } from "@api-contract/types";
 import { ParentComponent, createContext, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
 type Messages = {
   messages: {
-    content: string;
+    content: Message;
     userIsAuthor: boolean;
   }[];
 };
