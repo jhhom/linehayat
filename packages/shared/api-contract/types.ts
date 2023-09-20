@@ -1,4 +1,9 @@
-import type { Contract, StudentContract, VolunteerContract } from "./endpoints";
+import type {
+  AdminContract,
+  Contract,
+  StudentContract,
+  VolunteerContract,
+} from "./endpoints";
 import { Result } from "neverthrow";
 import { z } from "zod";
 import { AppErrorUnion } from "./errors";
@@ -9,6 +14,10 @@ export type ServiceResult<T extends keyof Contract> = Promise<
 
 export type StudentServiceResult<T extends keyof StudentContract> = Promise<
   Result<z.infer<StudentContract[T]["output"]>, AppErrorUnion>
+>;
+
+export type AdminServiceResult<T extends keyof AdminContract> = Promise<
+  Result<z.infer<AdminContract[T]["output"]>, AppErrorUnion>
 >;
 
 export type VolunteerServiceResult<T extends keyof VolunteerContract> = Promise<

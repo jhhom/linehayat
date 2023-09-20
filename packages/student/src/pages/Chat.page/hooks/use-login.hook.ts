@@ -11,13 +11,15 @@ export function useLogin(props: { onMakeRequestFailed: () => void }) {
     [keyof StudentSubscriptionEventPayload, number][]
   >([]);
 
+  const store = useAppStore((s) => s);
+
   onCleanup(() => {
     for (const [k, v] of listenersToCleanup()) {
       client.removeListener(k, v);
     }
   });
 
-  const login = async (store: AppStore) => {
+  const login = async () => {
     const r = await client["student/make_request"]();
     if (r.isErr()) {
       alert("Failed to make request: " + r.error);

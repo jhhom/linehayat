@@ -113,7 +113,7 @@ function ChatPage() {
                       <button
                         onClick={async () => {
                           if (card() === 2) {
-                            await login(store);
+                            await login();
                             setCard(0);
                           } else {
                             setCard((c) => c + 1);

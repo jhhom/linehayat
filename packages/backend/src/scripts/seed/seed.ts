@@ -37,6 +37,14 @@ const seed = async () => {
       isApproved: true,
     })
     .execute();
+
+  await db
+    .insertInto("admins")
+    .values({
+      username: "admin",
+      password: "admin123",
+    })
+    .execute();
 };
 
 seed();

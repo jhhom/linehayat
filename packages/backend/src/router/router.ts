@@ -13,6 +13,7 @@ import { makeAppTRPC } from "@backend/router/context";
 
 import { makeStudentRouter } from "@backend/router/router-student";
 import { makeVolunteerRouter } from "@backend/router/router-volunteer";
+import { makeAdminRouter } from "@backend/router/router-admin";
 
 const t = makeAppTRPC();
 const guards = makeTRPCRouterGuards(t);
@@ -69,8 +70,17 @@ function initRouter(
       jwtKey: config.jwtKey,
     }
   );
+  const adminRouter = makeAdminRouter(
+    { router, procedure, guardIsAuthedAsAdmin: guards.guardIsAuthedAsAdmin },
+    { db },
+    { jwtKey: config.jwtKey }
+  );
 
-  const mainRouter = t.mergeRouters(studentRouter, volunteerRouter);
+  const mainRouter = t.mergeRouters(
+    studentRouter,
+    volunteerRouter,
+    adminRouter
+  );
 
   return mainRouter;
 }

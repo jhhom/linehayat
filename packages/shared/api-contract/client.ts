@@ -6,7 +6,12 @@ import type {
   VolunteerSubscriptionEventPayload,
 } from "./subscription";
 
-import { StudentContract, VolunteerContract, Contract } from "./endpoints";
+import {
+  StudentContract,
+  VolunteerContract,
+  AdminContract,
+  Contract,
+} from "./endpoints";
 import {
   StudentServiceResult,
   VolunteerServiceResult,
@@ -18,6 +23,14 @@ type IClient = {
     input: z.ZodSchema;
   }
     ? (arg: z.infer<Contract[k]["input"]>) => ServiceResult<k>
+    : () => ServiceResult<k>;
+};
+
+export type IAdminClient = {
+  [k in keyof AdminContract]: AdminContract[k] extends {
+    input: z.ZodSchema;
+  }
+    ? (arg: z.infer<AdminContract[k]["input"]>) => ServiceResult<k>
     : () => ServiceResult<k>;
 };
 

@@ -26,6 +26,8 @@
     "extendable-media-recorder": "^9.1.0",
     "extendable-media-recorder-wav-encoder": "^7.0.96",
     "fp-ts": "^2.16.1",
+    "prettier-plugin-css-order": "^2.0.0",
+    "prettier-plugin-tailwindcss": "^0.5.4",
     "solid-js": "^1.7.6",
     "ts-pattern": "^5.0.5",
     "ws": "^8.13.0"

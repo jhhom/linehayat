@@ -8,7 +8,7 @@ module.exports = {
     client: "postgresql",
     searchPath: "public", // 1. add this
     connection: {
-      database: "linehayat",
+      database: "linehayat_test",
       user: "postgres",
       password: "",
     },

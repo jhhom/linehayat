@@ -1,7 +1,10 @@
 {
   "name": "root",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "migrate:test": "knex migrate:latest --knexfile=knexfile.cjs --env=test",
+    "migrate:": "knex migrate:latest --knexfile=knexfile.cjs"
+  },
   "workspaces": [
     "packages/*"
   ],

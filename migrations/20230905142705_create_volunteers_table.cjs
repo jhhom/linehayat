@@ -9,11 +9,20 @@ exports.up = async function (knex) {
         updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
         created_at TIMESTAMP DEFAULT NOW() NOT NULL
     );
+
+    CREATE TABLE admins(
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL
+    )
   `);
 };
 
 exports.down = async function (knex) {
   await knex.raw(/* sql */ `
     DROP TABLE volunteers;
+    DROP TABLE admins;
   `);
 };

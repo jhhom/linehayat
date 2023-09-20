@@ -33,6 +33,10 @@ type Session = {
         username: string | null;
         socket: VolunteerSocket;
       }
+    | {
+        type: "admin";
+        username: string;
+      }
     | null;
 };
 

@@ -7,7 +7,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "~": path.resolve(__dirname, "./src/"),
+      "@backend": path.resolve(__dirname, "./src/"),
+      "@api-contract": path.resolve(__dirname, "../shared/api-contract"),
     },
   },
 });
