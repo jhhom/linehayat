@@ -10,7 +10,8 @@
     "start": "node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:introspect": "kysely-codegen --camel-case --dialect postgres --out-file src/core/schema.ts",
-    "experimental-script:get-audio-duration": "tsx src/scripts/experiments/get-audio-duration/get-audio-duration.ts"
+    "experimental-script:get-audio-duration": "tsx src/scripts/experiments/get-audio-duration/get-audio-duration.ts",
+    "scripts:seed": "tsx src/scripts/seed/seed.ts"
   },
   "keywords": [],
   "author": "",

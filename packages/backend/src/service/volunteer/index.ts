@@ -3,5 +3,6 @@ import { acceptRequest } from "@backend/service/volunteer/accept-request.service
 import { sendMessage } from "@backend/service/volunteer/send-message.service";
 import { hangUp } from "@backend/service/volunteer/hang-up.service";
 import { typing } from "@backend/service/volunteer/typing.service";
+import { signUp } from "@backend/service/volunteer/sign-up.service";
 
-export { login, acceptRequest, sendMessage, hangUp, typing };
+export { login, acceptRequest, sendMessage, hangUp, typing, signUp };

@@ -23,6 +23,7 @@ export interface Volunteers {
   email: string;
   username: string;
   password: string;
+  isApproved: Generated<boolean>;
   updatedAt: Generated<Timestamp>;
   createdAt: Generated<Timestamp>;
 }

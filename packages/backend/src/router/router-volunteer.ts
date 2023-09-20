@@ -71,6 +71,25 @@ export const makeVolunteerRouter = (
         return observable<VolunteerSubscriptionMessage>(observableCallback);
       }
     ),
+    ["volunteer/sign_up"]: procedure
+      .input(contract["volunteer/sign_up"].input)
+      .output(contract["volunteer/sign_up"].output)
+      .mutation(async ({ input, ctx }) => {
+        const result = await volunteerService.signUp(
+          {
+            db,
+          },
+          {
+            username: input.username,
+            email: input.email,
+            password: input.password,
+          }
+        );
+        if (result.isErr()) {
+          throw result.error;
+        }
+        return result.value;
+      }),
     ["volunteer/accept_request"]: procedure
       .use(guardIsAuthedAsVolunteer)
       .input(contract["volunteer/accept_request"].input)

@@ -126,6 +126,13 @@ export class Client implements IVolunteerClient {
     return r;
   }
 
+  async ["volunteer/sign_up"](arg: ServiceInput<"volunteer/sign_up">) {
+    const r = await this.#fromApiPromise(
+      this.#trpc["volunteer/sign_up"].mutate(arg),
+    );
+    return r;
+  }
+
   async ["volunteer/typing"](arg: ServiceInput<"volunteer/typing">) {
     const r = await this.#fromApiPromise(
       this.#trpc["volunteer/typing"].mutate(arg),

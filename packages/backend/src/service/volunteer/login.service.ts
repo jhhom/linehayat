@@ -41,7 +41,7 @@ export async function login(
   const user = await fromPromise(
     db
       .selectFrom("volunteers")
-      .select(["password", "username", "email"])
+      .select(["password", "username", "email", "isApproved"])
       .where("username", "=", input.username)
       .executeTakeFirst(),
     (e) => new AppError("DATABASE", { cause: e })
@@ -51,6 +51,10 @@ export async function login(
   }
   if (user.value === undefined) {
     return err(new AppError("RESOURCE_NOT_FOUND", { resource: "volunteer" }));
+  }
+
+  if (!user.value.isApproved) {
+    return err(new AppError("AUTH.VOLUNTEER_NOT_YET_APPROVED", undefined));
   }
 
   if (user.value.password !== input.password) {

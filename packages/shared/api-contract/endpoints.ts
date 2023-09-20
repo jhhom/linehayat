@@ -51,6 +51,16 @@ const volunteerContract = {
       message: z.string(),
     }),
   },
+  "volunteer/sign_up": {
+    input: z.object({
+      username: z.string(),
+      password: z.string(),
+      email: z.string(),
+    }),
+    output: z.object({
+      message: z.string(),
+    }),
+  },
 };
 
 const studentContract = {

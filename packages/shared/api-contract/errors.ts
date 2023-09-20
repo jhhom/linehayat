@@ -16,6 +16,8 @@ export type ErrorPayload = {
   };
   SAVE_MEDIA_FAILED: { media: string; cause: unknown };
   "AUTH.INCORRECT_PASSWORD": undefined;
+  "AUTH.VOLUNTEER_NOT_YET_APPROVED": undefined;
+  "DB.DUPLICATE_COLUMN": { column: string };
 };
 
 export const ErrorMessage: { [k in keyof ErrorPayload]: string } = {
@@ -25,6 +27,8 @@ export const ErrorMessage: { [k in keyof ErrorPayload]: string } = {
   UNKNOWN: "An unexpected error has occured",
   SAVE_MEDIA_FAILED: "Failed to save media",
   "AUTH.INCORRECT_PASSWORD": "Incorrect password",
+  "AUTH.VOLUNTEER_NOT_YET_APPROVED": "Volunteer has not been approved",
+  "DB.DUPLICATE_COLUMN": "Unique column has duplicate value",
 };
 
 export class AppError<T extends keyof ErrorPayload> extends Error {
