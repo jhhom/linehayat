@@ -3,8 +3,8 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
-  volunteerStudentPairs,
+  volunteerSessions,
+  VolunteerSessions,
 } from "@backend/core/memory";
 import type { StudentId } from "@api-contract/types";
 import { faker } from "@faker-js/faker";
@@ -27,7 +27,7 @@ export async function makeRequest(
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
     jwtKey: string;
   },
   studentCtx: {
@@ -47,7 +47,7 @@ export async function makeRequest(
     payload: latestDashboardUpdate(
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs
+      volunteerSessions
     ),
   });
 

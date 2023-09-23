@@ -4,17 +4,13 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 
 import { StudentSocket } from "@backend/router/context";
-import { volunteerUsernameToId } from "@backend/core/memory";
 import { observable } from "@trpc/server/observable";
 import { StudentSubscriptionMessage } from "@api-contract/subscription";
 import { AppTRPCGuards } from "@backend/router/guards";
-
-import { broadcastToVolunteers } from "@backend/core/memory";
-import { latestDashboardUpdate } from "@backend/service/common/dashboard";
 
 import { contract } from "@api-contract/endpoints";
 import { cleanupSocket } from "@backend/service/common/socket";
@@ -37,12 +33,12 @@ export const makeStudentRouter = (
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineVolunteers: OnlineVolunteers;
     onlineStudents: OnlineStudents;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   config: {
     jwtKey: string;
@@ -62,7 +58,7 @@ export const makeStudentRouter = (
             cleanupSocket(ctx.ctx, {
               onlineStudents,
               onlineVolunteers,
-              volunteerStudentPairs,
+              volunteerSessions,
             });
           };
 
@@ -81,7 +77,7 @@ export const makeStudentRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
             jwtKey: config.jwtKey,
           },
           {
@@ -108,7 +104,7 @@ export const makeStudentRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
           },
           {
             studentId: ctx.auth.studentId,
@@ -131,7 +127,7 @@ export const makeStudentRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
           },
           {
             studentId: ctx.auth.studentId,
@@ -150,10 +146,21 @@ export const makeStudentRouter = (
       .output(contract["student/typing"].output)
       .mutation(async ({ input, ctx }) => {
         const r = await studentService.typing(
-          { db, onlineStudents, onlineVolunteers, volunteerStudentPairs },
+          { db, onlineStudents, onlineVolunteers, volunteerSessions },
           { studentId: ctx.auth.studentId },
           { typing: input.typing }
         );
+        if (r.isErr()) {
+          throw r.error;
+        }
+
+        return r.value;
+      }),
+    ["student/submit_feedback"]: procedure
+      .input(contract["student/submit_feedback"].input)
+      .output(contract["student/submit_feedback"].output)
+      .mutation(async ({ ctx, input }) => {
+        const r = await studentService.submitFeedback({ db }, input);
         if (r.isErr()) {
           throw r.error;
         }

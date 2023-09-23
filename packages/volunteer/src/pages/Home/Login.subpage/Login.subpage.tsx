@@ -40,7 +40,7 @@ export default function LoginPage() {
   const store = useAppStore((s) => s);
 
   // temporary auto-login to ease debugging
-  // useAutoLogin({ username: "james", password: "james123" });
+  useAutoLogin({ username: "james", password: "james123" });
 
   const { login, listenersToCleanup } = useLogin();
 

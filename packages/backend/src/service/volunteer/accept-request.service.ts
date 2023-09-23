@@ -2,9 +2,9 @@ import {
   volunteerUsernameToId,
   type OnlineVolunteers,
   onlineStudents,
-  volunteerStudentPairs,
+  volunteerSessions,
   OnlineStudents,
-  VolunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 import type { ServiceResult, StudentId } from "@api-contract/types";
 import { ok, err } from "neverthrow";
@@ -19,13 +19,13 @@ export async function acceptRequest(
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
     jwtKey,
   }: {
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
     jwtKey: string;
   },
   input: {
@@ -34,7 +34,7 @@ export async function acceptRequest(
   }
 ): ServiceResult<"volunteer/accept_request"> {
   const volunteerId = volunteerUsernameToId(input.volunteerUsername);
-  if (volunteerStudentPairs.has(volunteerId)) {
+  if (volunteerSessions.has(volunteerId)) {
     return err(
       new AppError("UNKNOWN", {
         cause: "Volunteer is busy, cannot accept any request",
@@ -49,14 +49,17 @@ export async function acceptRequest(
 
   socket.next({ event: "student.request_accepted", payload: {} });
 
-  volunteerStudentPairs.set(volunteerId, input.studentId);
+  volunteerSessions.set(volunteerId, {
+    studentId: input.studentId,
+    sessionStartTime: new Date(),
+  });
 
   broadcastToVolunteers(onlineVolunteers, {
     event: "volunteer.dashboard_update",
     payload: latestDashboardUpdate(
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs
+      volunteerSessions
     ),
   });
 

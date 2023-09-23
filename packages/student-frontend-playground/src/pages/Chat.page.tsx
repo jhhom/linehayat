@@ -1,7 +1,6 @@
 import { onMount, type Component, createSignal, Show } from "solid-js";
 import { match } from "ts-pattern";
 import { Router } from "@solidjs/router";
-import trpc from "~/utils/trpc";
 
 function Content1() {
   return (
@@ -139,10 +138,6 @@ function Content3(props: {
 function ChatPage() {
   const [card, setCard] = createSignal(0);
   const [agreeToTNC, setAgreeToTNC] = createSignal(false);
-
-  onMount(async () => {
-    const data = await trpc.example.query();
-  });
 
   return (
     <div>

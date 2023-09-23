@@ -1,14 +1,14 @@
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 import { DashboardUpdate } from "@api-contract/subscription";
 
 export const latestDashboardUpdate = (
   students: OnlineStudents,
   volunteers: OnlineVolunteers,
-  volunteerStudentPairs: VolunteerStudentPairs
+  volunteerStudentPairs: VolunteerSessions
 ): DashboardUpdate => {
   // get all volunteers
   // get all volunteers not in pairs -> not busy
@@ -33,12 +33,14 @@ export const latestDashboardUpdate = (
       volunteerId: v,
       status: {
         status: "busy",
-        chattingWith,
+        chattingWith: chattingWith.studentId,
       },
     });
   }
 
-  const pairedStudents = new Set(volunteerStudentPairs.values());
+  const pairedStudents = new Set(
+    Array.from(volunteerStudentPairs.values()).map((s) => s.studentId)
+  );
   const pendingRequests = Array.from(students.keys())
     .filter((sId) => !pairedStudents.has(sId))
     .map<DashboardUpdate["pendingRequests"][number]>((r) => ({

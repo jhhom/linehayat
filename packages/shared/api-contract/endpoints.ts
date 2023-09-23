@@ -171,6 +171,16 @@ const volunteerContract = {
 };
 
 const studentContract = {
+  "student/submit_feedback": {
+    input: z.object({
+      feedbackId: z.string(),
+      comment: z.string(),
+      rating: z.number().nullable(),
+    }),
+    output: z.object({
+      message: z.string(),
+    }),
+  },
   "student/make_request": {
     output: z.object({
       token: z.string(),
@@ -183,6 +193,7 @@ const studentContract = {
   "student/hang_up": {
     output: z.object({
       message: z.string(),
+      feedbackId: z.string(),
     }),
   },
   "student/typing": {

@@ -11,7 +11,7 @@ import { initRouter } from "@backend/router/router";
 import {
   onlineStudents,
   onlineVolunteers,
-  volunteerStudentPairs,
+  volunteerSessions,
 } from "@backend/core/memory";
 
 const Pool = pg.Pool;
@@ -45,7 +45,7 @@ const handler = applyWSSHandler({
   wss,
   router: initRouter(
     db,
-    { onlineVolunteers, onlineStudents, volunteerStudentPairs },
+    { onlineVolunteers, onlineStudents, volunteerSessions },
     {
       jwtKey: config.value.JWT_KEY,
     }

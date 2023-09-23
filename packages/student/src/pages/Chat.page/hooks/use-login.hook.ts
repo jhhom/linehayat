@@ -37,6 +37,7 @@ export function useLogin(props: { onMakeRequestFailed: () => void }) {
         alert("Volunteer has disconnected");
         store.setMessages("messages", []);
         store.setProfile({ status: "idle" });
+        store.setFeedbackId("feedbackId", e.feedbackId);
         client.clearListeners();
       },
     );
@@ -53,6 +54,7 @@ export function useLogin(props: { onMakeRequestFailed: () => void }) {
       alert("volunteer has hanged-up");
       store.setMessages("messages", []);
       store.setProfile({ status: "idle" });
+      store.setFeedbackId("feedbackId", e.feedbackId);
       client.clearListeners();
     });
     const listenerId5 = client.addListener("student.volunteer_typing", (e) => {

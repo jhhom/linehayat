@@ -4,7 +4,7 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
   broadcastToVolunteers,
 } from "@backend/core/memory";
 
@@ -17,7 +17,6 @@ import { AppTRPCGuards } from "@backend/router/guards";
 import { contract } from "@api-contract/endpoints";
 
 import * as volunteerService from "@backend/service/volunteer";
-import { latestDashboardUpdate } from "@backend/service/common/dashboard";
 import { cleanupSocket } from "@backend/service/common/socket";
 
 export const makeVolunteerRouter = (
@@ -36,12 +35,12 @@ export const makeVolunteerRouter = (
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineVolunteers: OnlineVolunteers;
     onlineStudents: OnlineStudents;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   config: {
     jwtKey: string;
@@ -61,7 +60,7 @@ export const makeVolunteerRouter = (
             cleanupSocket(ctx.ctx, {
               onlineStudents,
               onlineVolunteers,
-              volunteerStudentPairs,
+              volunteerSessions,
             });
           };
 
@@ -100,7 +99,7 @@ export const makeVolunteerRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
             jwtKey: config.jwtKey,
           },
           {
@@ -119,7 +118,7 @@ export const makeVolunteerRouter = (
       .output(contract["volunteer/login"].output)
       .mutation(async ({ input, ctx }) => {
         const result = await volunteerService.login(
-          { db, onlineVolunteers, jwtKey: config.jwtKey },
+          { db, onlineVolunteers, jwtKey: config.jwtKey, volunteerSessions },
           {
             username: input.username,
             password: input.password,
@@ -153,7 +152,7 @@ export const makeVolunteerRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
           },
           {
             volunteerId: volunteerUsernameToId(ctx.auth.username),
@@ -175,7 +174,7 @@ export const makeVolunteerRouter = (
             db,
             onlineStudents,
             onlineVolunteers,
-            volunteerStudentPairs,
+            volunteerSessions,
           },
           {
             volunteerId: volunteerUsernameToId(ctx.auth.username),
@@ -194,7 +193,7 @@ export const makeVolunteerRouter = (
       .output(contract["student/typing"].output)
       .mutation(async ({ input, ctx }) => {
         const r = await volunteerService.typing(
-          { db, onlineStudents, onlineVolunteers, volunteerStudentPairs },
+          { db, onlineStudents, onlineVolunteers, volunteerSessions },
           { volunteerId: volunteerUsernameToId(ctx.auth.username) },
           { typing: input.typing }
         );

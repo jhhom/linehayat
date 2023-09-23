@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@modular-forms/solid": "^0.19.2",
+    "@solid-primitives/reducer": "^0.0.101",
     "@solidjs/router": "^0.8.3",
     "@trpc/client": "^10.0.0",
     "@types/ws": "^8.5.5",

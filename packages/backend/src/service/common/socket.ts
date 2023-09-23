@@ -1,7 +1,9 @@
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
+  addFeedbackId,
+  volunteerIdToUsername,
 } from "@backend/core/memory";
 import { Context } from "@backend/router/context";
 import {
@@ -17,11 +19,11 @@ export function cleanupSocket(
   {
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   }
 ) {
   if (ctx.auth !== null) {
@@ -30,27 +32,34 @@ export function cleanupSocket(
 
       onlineVolunteers.delete(volunteerId);
 
-      const studentId = volunteerStudentPairs.get(volunteerId);
-      if (studentId) {
-        const student = onlineStudents.get(studentId);
+      const session = volunteerSessions.get(volunteerId);
+      if (session) {
+        const student = onlineStudents.get(session.studentId);
+        const feedbackId = addFeedbackId({
+          volunteerUsername: volunteerIdToUsername(volunteerId),
+          sessionEnd: new Date(),
+          sessionStart: session.sessionStartTime,
+        });
         if (student) {
           student.next({
             event: "student.volunteer_disconnected",
-            payload: {},
+            payload: {
+              feedbackId,
+            },
           });
         }
-        volunteerStudentPairs.delete(volunteerUsernameToId(ctx.auth.username));
+        volunteerSessions.delete(volunteerUsernameToId(ctx.auth.username));
       }
     } else if (ctx.auth.type === "student" && ctx.auth.studentId !== null) {
       const studentId = ctx.auth.studentId;
       onlineStudents.delete(studentId);
 
       const volunteerId = findVolunteerPairOfStudent(
-        volunteerStudentPairs,
+        volunteerSessions,
         studentId
       );
       if (volunteerId) {
-        volunteerStudentPairs.delete(volunteerId);
+        volunteerSessions.delete(volunteerId);
 
         const volunteer = onlineVolunteers.get(volunteerId);
         if (volunteer) {
@@ -69,7 +78,7 @@ export function cleanupSocket(
     payload: latestDashboardUpdate(
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs
+      volunteerSessions
     ),
   });
 }

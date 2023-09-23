@@ -5,7 +5,7 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 
 import { makeTRPCRouterGuards } from "@backend/router/guards";
@@ -26,11 +26,11 @@ function initRouter(
   {
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     onlineVolunteers: OnlineVolunteers;
     onlineStudents: OnlineStudents;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   config: {
     jwtKey: string;
@@ -47,7 +47,7 @@ function initRouter(
       db,
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs,
+      volunteerSessions,
     },
     {
       jwtKey: config.jwtKey,
@@ -64,7 +64,7 @@ function initRouter(
       db,
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs,
+      volunteerSessions,
     },
     {
       jwtKey: config.jwtKey,

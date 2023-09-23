@@ -2,7 +2,8 @@ import {
   volunteerUsernameToId,
   type OnlineVolunteers,
   onlineStudents,
-  volunteerStudentPairs,
+  VolunteerSessions,
+  volunteerSessions,
 } from "@backend/core/memory";
 import type { ServiceResult } from "@api-contract/types";
 import { ok, err } from "neverthrow";
@@ -26,6 +27,7 @@ export async function login(
   }: {
     db: Kysely<DB>;
     onlineVolunteers: OnlineVolunteers;
+    volunteerSessions: VolunteerSessions;
     jwtKey: string;
   },
   input: {
@@ -73,7 +75,7 @@ export async function login(
   const dashboardUpdate = latestDashboardUpdate(
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs
+    volunteerSessions
   );
 
   broadcastToVolunteers(onlineVolunteers, {

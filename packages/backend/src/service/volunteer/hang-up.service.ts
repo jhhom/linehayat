@@ -1,10 +1,10 @@
 import {
-  volunteerUsernameToId,
   type OnlineVolunteers,
-  onlineStudents,
-  volunteerStudentPairs,
   OnlineStudents,
-  VolunteerStudentPairs,
+  VolunteerSessions,
+  addFeedbackId,
+  volunteerIdToUsername,
+  volunteerUsernameToId,
 } from "@backend/core/memory";
 import type {
   ServiceResult,
@@ -23,36 +23,47 @@ export async function hangUp(
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   input: {
     volunteerId: VolunteerId;
   }
 ): ServiceResult<"volunteer/hang_up"> {
   // notify student of the hang up
-  const studentId = volunteerStudentPairs.get(input.volunteerId);
-  if (studentId) {
-    const socket = onlineStudents.get(studentId);
+  const session = volunteerSessions.get(input.volunteerId);
+  if (session) {
+    const socket = onlineStudents.get(session.studentId);
+    const feedbackId = addFeedbackId({
+      volunteerUsername: volunteerIdToUsername(input.volunteerId),
+      sessionStart: session.sessionStartTime,
+      sessionEnd: new Date(),
+    });
     if (socket) {
-      socket.next({ event: "student.hanged_up", payload: {} });
+      socket.next({ event: "student.hanged_up", payload: { feedbackId } });
     }
 
-    onlineStudents.delete(studentId);
+    addFeedbackId({
+      volunteerUsername: volunteerIdToUsername(input.volunteerId),
+      sessionStart: session.sessionStartTime,
+      sessionEnd: new Date(),
+    });
+
+    onlineStudents.delete(session.studentId);
   }
 
-  volunteerStudentPairs.delete(input.volunteerId);
+  volunteerSessions.delete(input.volunteerId);
 
   broadcastToVolunteers(onlineVolunteers, {
     event: "volunteer.dashboard_update",
     payload: latestDashboardUpdate(
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs
+      volunteerSessions
     ),
   });
 

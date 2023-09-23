@@ -10,9 +10,13 @@ export type StudentSubscriptionMessage = {
 }[keyof StudentSubscriptionEventPayload];
 
 export type StudentSubscriptionEventPayload = {
-  "student.hanged_up": {};
+  "student.hanged_up": {
+    feedbackId: string;
+  };
   "student.request_accepted": {};
-  "student.volunteer_disconnected": {};
+  "student.volunteer_disconnected": {
+    feedbackId: string;
+  };
   "student.message": Message;
   "student.volunteer_typing": {
     typing: boolean;

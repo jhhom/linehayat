@@ -129,6 +129,15 @@ export class Client implements IStudentClient {
     return r;
   }
 
+  async ["student/submit_feedback"](
+    arg: ServiceInput<"student/submit_feedback">,
+  ) {
+    const r = await this.#fromApiPromise(
+      this.#trpc["student/submit_feedback"].mutate(arg),
+    );
+    return r;
+  }
+
   async ["student/make_request"]() {
     if (this.#subscription !== undefined) {
       this.#subscription.unsubscribe();

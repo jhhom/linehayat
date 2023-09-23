@@ -3,8 +3,7 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
-  volunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 import type {
   ServiceResult,
@@ -24,19 +23,19 @@ export async function sendMessage(
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   volunteerCtx: {
     volunteerId: VolunteerId;
   },
   arg: MessageInput
 ): ServiceResult<"volunteer/send_message"> {
-  const studentId = volunteerStudentPairs.get(volunteerCtx.volunteerId);
+  const session = volunteerSessions.get(volunteerCtx.volunteerId);
 
   if (arg.type === "voice") {
     const saveResult = await saveMedia(
@@ -60,8 +59,8 @@ export async function sendMessage(
 
     const url = completeMediaUrl(saveResult.value.assetPath);
 
-    if (studentId) {
-      const student = onlineStudents.get(studentId);
+    if (session) {
+      const student = onlineStudents.get(session.studentId);
       if (student) {
         student.next({
           event: "student.message",
@@ -75,8 +74,8 @@ export async function sendMessage(
 
     return ok({ type: "voice", url });
   } else {
-    if (studentId) {
-      const student = onlineStudents.get(studentId);
+    if (session) {
+      const student = onlineStudents.get(session.studentId);
       if (student) {
         student.next({
           event: "student.message",

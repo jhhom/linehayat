@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.star_rating__star-rating-wrap {
+  display: inline-block;
+  touch-action: none;
+}
+
+.star_rating__simple-star-rating {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  touch-action: none;
+}
+
+.star_rating__fill-icons {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.star_rating__empty-icons {
+  display: inline-block;
+}
+
+.star_rating__tooltip {
+  display: inline-block;
+  padding: 5px 15px;
+  background-color: #333;
+  color: #fff;
+  vertical-align: middle;
+  border-radius: 5px;
+}

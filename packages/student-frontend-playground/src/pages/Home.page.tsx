@@ -1,15 +1,9 @@
 import { onMount, type Component, createSignal } from "solid-js";
 import { Router } from "@solidjs/router";
-import trpc from "~/utils/trpc";
 import { A } from "@solidjs/router";
 
 function HomePage() {
   const [d, setD] = createSignal(0);
-
-  onMount(async () => {
-    const data = await trpc.example.query();
-    setD(data.info);
-  });
 
   return (
     <div>

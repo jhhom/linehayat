@@ -1,10 +1,9 @@
 import {
-  volunteerUsernameToId,
   type OnlineVolunteers,
-  onlineStudents,
-  volunteerStudentPairs,
   OnlineStudents,
-  VolunteerStudentPairs,
+  VolunteerSessions,
+  addFeedbackId,
+  volunteerIdToUsername,
 } from "@backend/core/memory";
 import type {
   ServiceResult,
@@ -24,23 +23,34 @@ export async function hangUp(
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   input: {
     studentId: StudentId;
   }
 ): ServiceResult<"student/hang_up"> {
   const volunteerId = findVolunteerPairOfStudent(
-    volunteerStudentPairs,
+    volunteerSessions,
     input.studentId
   );
+  let feedbackId = "";
   if (volunteerId) {
-    volunteerStudentPairs.delete(volunteerId);
+    const session = volunteerSessions.get(volunteerId);
+
+    if (session) {
+      feedbackId = addFeedbackId({
+        volunteerUsername: volunteerIdToUsername(volunteerId),
+        sessionStart: session.sessionStartTime,
+        sessionEnd: new Date(),
+      });
+    }
+
+    volunteerSessions.delete(volunteerId);
 
     // notify volunteer of the hang up
     const socket = onlineVolunteers.get(volunteerId);
@@ -56,9 +66,9 @@ export async function hangUp(
     payload: latestDashboardUpdate(
       onlineStudents,
       onlineVolunteers,
-      volunteerStudentPairs
+      volunteerSessions
     ),
   });
 
-  return ok({ message: "Successfully hanged-up" });
+  return ok({ message: "Successfully hanged-up", feedbackId });
 }

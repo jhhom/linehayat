@@ -3,7 +3,7 @@ import { DB } from "@backend/core/schema";
 import {
   OnlineStudents,
   OnlineVolunteers,
-  VolunteerStudentPairs,
+  VolunteerSessions,
 } from "@backend/core/memory";
 import type { ServiceResult, StudentId } from "@api-contract/types";
 import { findVolunteerPairOfStudent } from "@backend/service/common/pairs";
@@ -14,12 +14,12 @@ export async function typing(
     db,
     onlineStudents,
     onlineVolunteers,
-    volunteerStudentPairs,
+    volunteerSessions,
   }: {
     db: Kysely<DB>;
     onlineStudents: OnlineStudents;
     onlineVolunteers: OnlineVolunteers;
-    volunteerStudentPairs: VolunteerStudentPairs;
+    volunteerSessions: VolunteerSessions;
   },
   studentCtx: {
     studentId: StudentId;
@@ -29,7 +29,7 @@ export async function typing(
   }
 ): ServiceResult<"student/typing"> {
   const volunteerId = findVolunteerPairOfStudent(
-    volunteerStudentPairs,
+    volunteerSessions,
     studentCtx.studentId
   );
   if (volunteerId) {
