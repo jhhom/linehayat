@@ -3,7 +3,7 @@
     "editor.fontSize": 11,
     "editor.formatOnType": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     },
     "typescript.preferences.importModuleSpecifier": "non-relative"
 }
